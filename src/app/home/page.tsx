@@ -135,11 +135,14 @@ export default function QRPage() {
         scanningRef.current = true;
         frameReqId.current = requestAnimationFrame(scanFrame);
       };
-      videoRef.current.readyState >= 2
-        ? onLoaded()
-        : videoRef.current.addEventListener("loadedmetadata", onLoaded, {
-            once: true,
-          });
+      if (videoRef.current.readyState >= 2) {
+        onLoaded();
+      } else {
+        videoRef.current.addEventListener("loadedmetadata", onLoaded, {
+          once: true,
+        });
+      }
+      
 
       setCameraPermission(true);
       timeoutId.current = setTimeout(() => {
