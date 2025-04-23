@@ -2,20 +2,44 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { ArrowLeft, Battery, Zap, CheckCircle2, AlertCircle } from "lucide-react";
+import {
+  ArrowLeft,
+  Battery,
+  Zap,
+  CheckCircle2,
+  AlertCircle,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { auth, db } from "../../firebase";
 import { ref, push, set } from "firebase/database";
+import jsQR from "jsqr";
 
+/**
+ * QRPage – scans webcam frames with jsQR.
+ * Succeeds only when the decoded text === "infispark" (case-insensitive).
+ * After successful Razorpay payment it
+ *  • writes a status (in seconds) to device/status
+ *  • appends the payment to users/{uid}/history
+ */
 export default function QRPage() {
   const router = useRouter();
+
+  /* --------------------------- State --------------------------- */
   const [scanning, setScanning] = useState(false);
   const [scanned, setScanned] = useState(false);
   const [error, setError] = useState(false);
-  const [cameraPermission, setCameraPermission] = useState<boolean | null>(null);
+  const [cameraPermission, setCameraPermission] = useState<boolean | null>(
+    null
+  );
+
+  /* --------------------------- Refs ---------------------------- */
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const scanningRef = useRef<boolean>(false);
+  const frameReqId = useRef<number | undefined>(undefined);
+  const timeoutId = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
+  /* --------------------- Static charger info ------------------- */
   const [chargerInfo] = useState({
     id: "CHG-2023-0042",
     location: "Green Park Charging Station",
@@ -23,67 +47,106 @@ export default function QRPage() {
     status: "Available",
   });
 
-  // Define charging plan options
+  /* ---------------------- Plan options ------------------------ */
   const plans = [
+    { id: "quick5", label: "5 Seconds (Test)", price: 1 },     //  ₹1 →  5 s
+    { id: "quick10", label: "10 Seconds (Test)", price: 2 },   //  ₹2 → 10 s
     { id: "plan1", label: "30 Minutes", price: 100 },
     { id: "plan2", label: "65 Minutes", price: 200 },
     { id: "plan3", label: "2 Hours", price: 400 },
   ];
   const [selectedPlan, setSelectedPlan] = useState(plans[0]);
 
-  // Check if user is logged in; if not, redirect to /login
+  /* --------------------- Auth guard --------------------------- */
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (!user) {
-        router.push("/login");
-      }
-    });
-    return () => unsubscribe();
+    const unsub = auth.onAuthStateChanged((u) => !u && router.push("/login"));
+    return () => unsub();
   }, [router]);
 
-  // Cleanup camera tracks on unmount
-  useEffect(() => {
-    return () => {
-      if (videoRef.current && videoRef.current.srcObject) {
-        const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
-        tracks.forEach((track) => track.stop());
-      }
-    };
-  }, []);
+  /* -------------------- Cleanup on unmount -------------------- */
+  useEffect(() => () => cleanupCamera(), []);
 
+  /* ------------------ Helper: stop camera --------------------- */
+  const cleanupCamera = () => {
+    scanningRef.current = false;
+    if (frameReqId.current) cancelAnimationFrame(frameReqId.current);
+    if (timeoutId.current) clearTimeout(timeoutId.current);
+    if (videoRef.current?.srcObject) {
+      (videoRef.current.srcObject as MediaStream)
+        .getTracks()
+        .forEach((t) => t.stop());
+      videoRef.current.srcObject = null;
+    }
+  };
+
+  /* ------------- Draw & attempt QR decode each frame ---------- */
+  const scanFrame = () => {
+    if (!videoRef.current || !canvasRef.current || !scanningRef.current) return;
+
+    const video = videoRef.current;
+    if (video.readyState < 2) {
+      frameReqId.current = requestAnimationFrame(scanFrame);
+      return;
+    }
+
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx) return;
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const code = jsQR(img.data, img.width, img.height, {
+      inversionAttempts: "dontInvert",
+    });
+
+    if (code) {
+      const text = code.data.trim().toLowerCase();
+      if (text === "infispark") {
+        cleanupCamera();
+        setScanning(false);
+        setScanned(true);
+        return;
+      }
+    }
+    frameReqId.current = requestAnimationFrame(scanFrame);
+  };
+
+  /* -------------------- Start scanning ------------------------ */
   const startScanning = async () => {
+    cleanupCamera();
     setScanning(true);
     setScanned(false);
     setError(false);
 
     try {
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "environment" },
-        });
+      if (!navigator.mediaDevices?.getUserMedia) throw new Error();
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: "environment" } },
+      });
 
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.play();
-          setCameraPermission(true);
+      if (!videoRef.current) throw new Error();
+      videoRef.current.srcObject = stream;
+      videoRef.current.setAttribute("playsinline", "true");
+      const onLoaded = () => {
+        videoRef.current?.play();
+        scanningRef.current = true;
+        frameReqId.current = requestAnimationFrame(scanFrame);
+      };
+      videoRef.current.readyState >= 2
+        ? onLoaded()
+        : videoRef.current.addEventListener("loadedmetadata", onLoaded, {
+            once: true,
+          });
 
-          // Simulate QR code scanning after 3 seconds
-          setTimeout(() => {
-            setScanning(false);
-            setScanned(true);
-
-            // Stop the camera after successful scan
-            const tracks = stream.getTracks();
-            tracks.forEach((track) => track.stop());
-          }, 3000);
-        }
-      } else {
-        setCameraPermission(false);
-        setScanning(false);
-        setError(true);
-      }
-    } catch (err) {
-      console.error("Error accessing camera:", err);
+      setCameraPermission(true);
+      timeoutId.current = setTimeout(() => {
+        if (scanningRef.current) simulateError();
+      }, 30_000);
+    } catch (e) {
+      console.error("Error accessing camera:", e);
       setCameraPermission(false);
       setScanning(false);
       setError(true);
@@ -91,74 +154,89 @@ export default function QRPage() {
   };
 
   const simulateError = () => {
+    cleanupCamera();
     setScanning(false);
     setScanned(false);
     setError(true);
-
-    if (videoRef.current && videoRef.current.srcObject) {
-      const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
-      tracks.forEach((track) => track.stop());
-    }
   };
 
-  // Dynamically load Razorpay script
-  const loadRazorpayScript = () => {
-    return new Promise((resolve) => {
-      const script = document.createElement("script");
-      script.src = "https://checkout.razorpay.com/v1/checkout.js";
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
-      document.body.appendChild(script);
+  /* --------------- Razorpay dynamic loader -------------------- */
+  const loadRazorpayScript = () =>
+    new Promise<boolean>((res) => {
+      if ((window as any).Razorpay) return res(true);
+      const s = document.createElement("script");
+      s.src = "https://checkout.razorpay.com/v1/checkout.js";
+      s.onload = () => res(true);
+      s.onerror = () => res(false);
+      document.body.appendChild(s);
     });
+
+  /* ----------- Helper: amount ⇒ status-seconds ---------------- */
+  const amountToSeconds = (amount: number, label: string): number => {
+    if (amount === 1) return 5;           // ₹1  →  5 s
+    if (amount === 2) return 10;          // ₹2  → 10 s
+
+    // For plan labels like "30 Minutes", "2 Hours", etc.
+    const m = label.match(/(\d+)\s*(Minutes?|Hours?)/i);
+    if (m) {
+      const value = parseInt(m[1], 10);
+      return /hour/i.test(m[2]) ? value * 3600 : value * 60;
+    }
+    // Fallback – convert ₹→seconds  (1 ₹ ≈ 60 s)
+    return amount * 60;
   };
 
+  /* ------------------ Payment handler ------------------------- */
   const handlePayment = async () => {
-    const res = await loadRazorpayScript();
-    if (!res) {
-      alert("Razorpay SDK failed to load. Are you online?");
-      return;
-    }
+    if (!scanned) return;
+    const ok = await loadRazorpayScript();
+    if (!ok) return alert("Razorpay SDK failed to load. Are you online?");
 
-    const options = {
-      key: "rzp_test_0M6qo3zzUUkUCv", // Test Key ID
-      amount: selectedPlan.price * 100, // amount in paise
+    const opts = {
+      key: "rzp_test_0M6qo3zzUUkUCv",
+      amount: selectedPlan.price * 100,
       currency: "INR",
       name: "Bolt.Earth",
       description: `${selectedPlan.label} Charging Payment`,
-      handler: async function (response: any) {
-        // Payment successful, save payment history in Realtime Database
-        const currentUser = auth.currentUser;
-        if (currentUser) {
-          const paymentHistoryRef = ref(db, `users/${currentUser.uid}/makeHistory`);
-          const newPaymentRef = push(paymentHistoryRef);
-          await set(newPaymentRef, {
-            plan: selectedPlan.label,
-            amount: selectedPlan.price,
-            transactionId: response.razorpay_payment_id,
-            date: new Date().toISOString(),
-          });
-          alert("Payment Successful! Your charging session has been initiated.");
-        }
+      handler: async (resp: any) => {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        /* ---------- 1️⃣  compute seconds for device/status ---------- */
+        const seconds = amountToSeconds(selectedPlan.price, selectedPlan.label);
+
+        /* ---------- 2️⃣  write status ------------------------------ */
+        await set(ref(db, "device/status"), seconds);
+
+        /* ---------- 3️⃣  append history --------------------------- */
+        const histRef = ref(db, `users/${user.uid}/history`);
+        const newRef = push(histRef);
+        await set(newRef, {
+          plan: selectedPlan.label,
+          amount: selectedPlan.price,
+          seconds,
+          transactionId: resp.razorpay_payment_id,
+          date: new Date().toISOString(),
+        });
+
+        alert(
+          `Payment Successful! Charger enabled for ${seconds} seconds.\nEnjoy your session.`
+        );
       },
       prefill: {
-        name: auth.currentUser?.displayName || "",
-        email: auth.currentUser?.email || "",
-        contact: "",
+        name: auth.currentUser?.displayName ?? "",
+        email: auth.currentUser?.email ?? "",
       },
-      notes: {
-        address: "Bolt.Earth Charging Station",
-      },
-      theme: {
-        color: "#00c853",
-      },
-    };
+      notes: { address: "Bolt.Earth Charging Station" },
+      theme: { color: "#00c853" },
+    } as any;
 
-    const paymentObject = new (window as any).Razorpay(options);
-    paymentObject.open();
+    new (window as any).Razorpay(opts).open();
   };
 
+  /* ----------------------------- UI ---------------------------- */
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-white flex flex-col">
       {/* Header */}
       <header className="bg-[#00c853] text-white py-4">
         <div className="container mx-auto px-4">
@@ -171,17 +249,22 @@ export default function QRPage() {
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8">
+      {/* Body */}
+      <div className="container mx-auto px-4 py-8 flex-1">
         <div className="max-w-md mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold mb-2">Scan &amp; Pay</h1>
+            <h1 className="text-3xl font-bold mb-2">Scan&nbsp;&amp;&nbsp;Pay</h1>
             <p className="text-gray-600">
-              Scan the QR code on your charging station to begin charging your electric vehicle.
+              Scan the QR code on your charging station to begin charging your
+              electric vehicle.
             </p>
           </div>
 
+          {/* Scanner card */}
           <div className="bg-gray-50 rounded-2xl overflow-hidden shadow-lg mb-8">
+            {/* Live camera / placeholders */}
             <div className="relative aspect-square bg-black">
+              {/* Idle */}
               {!scanning && !scanned && !error && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-6 text-center">
                   <Zap className="w-16 h-16 text-[#00c853] mb-4" />
@@ -197,34 +280,36 @@ export default function QRPage() {
                 </div>
               )}
 
+              {/* Scanning live */}
               {scanning && (
                 <>
                   <video
                     ref={videoRef}
                     className="absolute inset-0 w-full h-full object-cover"
-                    playsInline
                     muted
-                  ></video>
-                  <canvas ref={canvasRef} className="absolute inset-0 w-full h-full hidden"></canvas>
-                  <div className="absolute inset-0 border-[3px] border-[#00c853] m-12 rounded-lg"></div>
+                  />
+                  <canvas ref={canvasRef} className="hidden" />
+                  <div className="absolute inset-0 border-[3px] border-[#00c853] m-12 rounded-lg" />
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-12 h-12 border-4 border-[#00c853] border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-12 h-12 border-4 border-[#00c853] border-t-transparent rounded-full animate-spin" />
                   </div>
                 </>
               )}
 
+              {/* Success */}
               {scanned && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-white p-6 text-center">
                   <div className="w-16 h-16 rounded-full bg-[#00c853]/10 flex items-center justify-center mb-4">
                     <CheckCircle2 className="w-10 h-10 text-[#00c853]" />
                   </div>
-                  <h2 className="text-xl font-bold mb-1">QR Code Scanned Successfully!</h2>
+                  <h2 className="text-xl font-bold mb-1">Scanner Found!</h2>
                   <p className="text-gray-600 mb-4">
-                    Charger connected and ready to use.
+                    QR verified – charger ready for payment.
                   </p>
                 </div>
               )}
 
+              {/* Error */}
               {error && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-white p-6 text-center">
                   <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mb-4">
@@ -234,7 +319,7 @@ export default function QRPage() {
                   <p className="text-gray-600 mb-4">
                     {cameraPermission === false
                       ? "Camera access denied. Please allow camera access and try again."
-                      : "Could not scan QR code. Please try again."}
+                      : "No valid QR found. Please try again."}
                   </p>
                   <button
                     onClick={startScanning}
@@ -246,10 +331,13 @@ export default function QRPage() {
               )}
             </div>
 
+            {/* Charger info & payment */}
             {scanned && (
               <div className="p-6">
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-4">Charger Information</h3>
+                  <h3 className="text-lg font-semibold mb-4">
+                    Charger Information
+                  </h3>
                   <div className="space-y-3">
                     <div className="flex justify-between">
                       <span className="text-gray-500">Charger ID</span>
@@ -265,13 +353,17 @@ export default function QRPage() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500">Status</span>
-                      <span className="font-medium text-[#00c853]">{chargerInfo.status}</span>
+                      <span className="font-medium text-[#00c853]">
+                        {chargerInfo.status}
+                      </span>
                     </div>
                   </div>
                 </div>
 
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-4">Select Charging Plan</h3>
+                  <h3 className="text-lg font-semibold mb-4">
+                    Select Charging Plan
+                  </h3>
                   <select
                     value={selectedPlan.id}
                     onChange={(e) => {
@@ -282,7 +374,7 @@ export default function QRPage() {
                   >
                     {plans.map((plan) => (
                       <option key={plan.id} value={plan.id}>
-                        {plan.label} - ₹{plan.price}
+                        {plan.label} – ₹{plan.price}
                       </option>
                     ))}
                   </select>
@@ -300,54 +392,49 @@ export default function QRPage() {
               </div>
             )}
 
+            {/* How it works (idle) */}
             {!scanned && !scanning && !error && (
-              <div className="p-6">
-                <h3 className="text-lg font-semibold mb-4">How It Works</h3>
-                <ol className="space-y-3 text-gray-600">
-                  <li className="flex">
-                    <span className="bg-[#00c853] text-white w-6 h-6 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
-                      1
-                    </span>
-                    <span>Scan the QR code on the charging station</span>
-                  </li>
-                  <li className="flex">
-                    <span className="bg-[#00c853] text-white w-6 h-6 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
-                      2
-                    </span>
-                    <span>Confirm charger details and pricing</span>
-                  </li>
-                  <li className="flex">
-                    <span className="bg-[#00c853] text-white w-6 h-6 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
-                      3
-                    </span>
-                    <span>Make payment via Razorpay and start charging</span>
-                  </li>
-                </ol>
-              </div>
-            )}
+              <>
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">How It Works</h3>
+                  <ol className="space-y-3 text-gray-600">
+                    {[
+                      "Scan the QR code on the charging station",
+                      "Confirm charger details and pricing",
+                      "Make payment via Razorpay and start charging",
+                    ].map((txt, i) => (
+                      <li key={txt} className="flex">
+                        <span className="bg-[#00c853] text-white w-6 h-6 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                          {i + 1}
+                        </span>
+                        <span>{txt}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
 
-            {!scanned && !scanning && !error && (
-              <div className="flex justify-center space-x-4 p-6">
-                <button
-                  onClick={startScanning}
-                  className="bg-[#00c853] text-white px-6 py-3 rounded-full font-medium hover:bg-[#00c853]/90 transition-colors"
-                >
-                  Scan QR Code
-                </button>
-                <button
-                  onClick={simulateError}
-                  className="border border-gray-300 text-gray-700 px-6 py-3 rounded-full font-medium hover:bg-gray-50 transition-colors"
-                >
-                  Enter Manually
-                </button>
-              </div>
+                <div className="flex justify-center space-x-4 p-6">
+                  <button
+                    onClick={startScanning}
+                    className="bg-[#00c853] text-white px-6 py-3 rounded-full font-medium hover:bg-[#00c853]/90 transition-colors"
+                  >
+                    Scan&nbsp;QR&nbsp;Code
+                  </button>
+                  <button
+                    onClick={simulateError}
+                    className="border border-gray-300 text-gray-700 px-6 py-3 rounded-full font-medium hover:bg-gray-50 transition-colors"
+                  >
+                    Enter&nbsp;Manually
+                  </button>
+                </div>
+              </>
             )}
           </div>
         </div>
       </div>
 
       {/* Footer */}
-      <footer className="bg-gray-50 py-6 mt-auto">
+      <footer className="bg-gray-50 py-6">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center mb-4 md:mb-0">
