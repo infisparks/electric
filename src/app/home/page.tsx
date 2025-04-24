@@ -31,7 +31,9 @@ export default function QRPage() {
   const [cameraPermission, setCameraPermission] = useState<boolean | null>(
     null
   );
-
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [chargingSeconds, setChargingSeconds] = useState(0);
+  
   /* --------------------------- Refs ---------------------------- */
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -222,9 +224,9 @@ export default function QRPage() {
           date: new Date().toISOString(),
         });
 
-        alert(
-          `Payment Successful! Charger enabled for ${seconds} seconds.\nEnjoy your session.`
-        );
+        setChargingSeconds(seconds);
+setShowSuccessModal(true);
+
       },
       prefill: {
         name: auth.currentUser?.displayName ?? "",
@@ -435,6 +437,23 @@ export default function QRPage() {
           </div>
         </div>
       </div>
+      {showSuccessModal && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="bg-white rounded-2xl shadow-lg p-6 max-w-sm w-full text-center">
+      <CheckCircle2 className="mx-auto w-12 h-12 text-green-600 mb-4" />
+      <h2 className="text-xl font-bold mb-2">Charging Started!</h2>
+      <p className="text-gray-600 mb-4">
+        Your charger is now active for {chargingSeconds} seconds.
+      </p>
+      <button
+        onClick={() => setShowSuccessModal(false)}
+        className="bg-[#00c853] text-white px-6 py-2 rounded-full"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+)}
 
       {/* Footer */}
       <footer className="bg-gray-50 py-6">
