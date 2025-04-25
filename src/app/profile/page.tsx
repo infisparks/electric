@@ -203,7 +203,7 @@ const Header = () => (
         <ArrowLeft className="w-5 h-5 mr-2 text-gray-600" />
         <Logo />
         <span className="ml-2 text-sm uppercase tracking-wider font-medium">
-          BOLT.EARTH
+          EV Energy
         </span>
       </Link>
       <button 
@@ -565,10 +565,10 @@ const Footer = () => (
     <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
       <div className="flex items-center mb-4 md:mb-0">
         <Logo />
-        <span className="text-sm font-medium ml-2">BOLT.EARTH</span>
+        <span className="text-sm font-medium ml-2">EV Energy</span>
       </div>
       <p className="text-gray-500 text-sm">
-        © {new Date().getFullYear()} Bolt.Earth. All rights reserved.
+        © {new Date().getFullYear()} EV Energy. All rights reserved.
       </p>
     </div>
   </footer>

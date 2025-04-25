@@ -109,7 +109,7 @@ export default function Home() {
               <Zap className="text-white w-6 h-6" />
             </div>
             <span className="ml-2 text-sm font-semibold tracking-wider">
-              <span className="text-[#00c853]">BOLT</span>.EARTH
+              <span className="text-[#00c853]">EV</span>ENERGY
             </span>
           </Link>
 
@@ -259,10 +259,10 @@ export default function Home() {
           <div className="hidden lg:block relative h-[500px] mt-12 lg:mt-0">
             <div className="absolute inset-0 bg-[#00c853]/10 rounded-2xl transform rotate-3"></div>
             <div className="absolute inset-0 bg-white rounded-2xl shadow-xl overflow-hidden transform -rotate-3 transition-transform hover:rotate-0 duration-500">
-              <Image
-                src="https://images.pexels.com/photos/10553207/pexels-photo-10553207.jpeg"
+              <img
+                src="https://worldautoforum.com/wp-content/uploads/2025/04/Car-Charging-Port-Car-Charging-Gun.jpg"
                 alt="Smart EV Charging"
-                fill
+                // objectFit="cover"
                 className="object-cover object-center"
               />
             </div>
@@ -609,7 +609,7 @@ export default function Home() {
                   <Zap className="text-white w-6 h-6" />
                 </div>
                 <span className="ml-2 text-sm uppercase tracking-wider font-medium">
-                  <span className="text-[#00c853]">BOLT</span>.EARTH
+                  <span className="text-[#00c853]">EV</span>Energy
                 </span>
               </Link>
               <p className="text-gray-400 mb-6">
@@ -692,7 +692,7 @@ export default function Home() {
 
           <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-500 text-sm mb-4 md:mb-0">
-              © {new Date().getFullYear()} Bolt.Earth. All rights reserved.
+              © {new Date().getFullYear()} EV Energy. All rights reserved.
             </p>
             <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-500">
               <Link href="#" className="hover:text-[#00c853] transition-colors">

@@ -1,18 +1,12 @@
-"use client";
+"use client"
 
-import { useState, useEffect, useRef } from "react";
-import Link from "next/link";
-import {
-  ArrowLeft,
-  Battery,
-  Zap,
-  CheckCircle2,
-  AlertCircle,
-} from "lucide-react";
-import { useRouter } from "next/navigation";
-import { auth, db } from "../../firebase";
-import { ref, push, set } from "firebase/database";
-import jsQR from "jsqr";
+import { useState, useEffect, useRef } from "react"
+import Link from "next/link"
+import { ArrowLeft, Battery, Zap, CheckCircle2, AlertCircle } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { auth, db } from "../../firebase"
+import { ref, push, set } from "firebase/database"
+import jsQR from "jsQR"
 
 /**
  * QRPage – scans webcam frames with jsQR.
@@ -22,24 +16,22 @@ import jsQR from "jsqr";
  *  • appends the payment to users/{uid}/history
  */
 export default function QRPage() {
-  const router = useRouter();
+  const router = useRouter()
 
   /* --------------------------- State --------------------------- */
-  const [scanning, setScanning] = useState(false);
-  const [scanned, setScanned] = useState(false);
-  const [error, setError] = useState(false);
-  const [cameraPermission, setCameraPermission] = useState<boolean | null>(
-    null
-  );
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [chargingSeconds, setChargingSeconds] = useState(0);
-  
+  const [scanning, setScanning] = useState(false)
+  const [scanned, setScanned] = useState(false)
+  const [error, setError] = useState(false)
+  const [cameraPermission, setCameraPermission] = useState<boolean | null>(null)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [chargingSeconds, setChargingSeconds] = useState(0)
+
   /* --------------------------- Refs ---------------------------- */
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const scanningRef = useRef<boolean>(false);
-  const frameReqId = useRef<number | undefined>(undefined);
-  const timeoutId = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const scanningRef = useRef<boolean>(false)
+  const frameReqId = useRef<number | undefined>(undefined)
+  const timeoutId = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
   /* --------------------- Static charger info ------------------- */
   const [chargerInfo] = useState({
@@ -47,197 +39,192 @@ export default function QRPage() {
     location: "Green Park Charging Station",
     rate: "₹15/kWh",
     status: "Available",
-  });
+  })
 
   /* ---------------------- Plan options ------------------------ */
   const plans = [
-    { id: "quick5", label: "5 Seconds (Test)", price: 1 },     //  ₹1 →  5 s
-    { id: "quick10", label: "10 Seconds (Test)", price: 2 },   //  ₹2 → 10 s
+    { id: "quick5", label: "5 Seconds (Test)", price: 1 }, //  ₹1 →  5 s
+    { id: "quick10", label: "10 Seconds (Test)", price: 2 }, //  ₹2 → 10 s
     { id: "plan1", label: "30 Minutes", price: 100 },
     { id: "plan2", label: "65 Minutes", price: 200 },
     { id: "plan3", label: "2 Hours", price: 400 },
-  ];
-  const [selectedPlan, setSelectedPlan] = useState(plans[0]);
+  ]
+  const [selectedPlan, setSelectedPlan] = useState(plans[0])
 
   /* --------------------- Auth guard --------------------------- */
   useEffect(() => {
-    const unsub = auth.onAuthStateChanged((u) => !u && router.push("/login"));
-    return () => unsub();
-  }, [router]);
+    const unsub = auth.onAuthStateChanged((u) => !u && router.push("/login"))
+    return () => unsub()
+  }, [router])
 
   /* -------------------- Cleanup on unmount -------------------- */
-  useEffect(() => () => cleanupCamera(), []);
+  useEffect(() => () => cleanupCamera(), [])
 
   /* ------------------ Helper: stop camera --------------------- */
   const cleanupCamera = () => {
-    scanningRef.current = false;
-    if (frameReqId.current) cancelAnimationFrame(frameReqId.current);
-    if (timeoutId.current) clearTimeout(timeoutId.current);
+    scanningRef.current = false
+    if (frameReqId.current) cancelAnimationFrame(frameReqId.current)
+    if (timeoutId.current) clearTimeout(timeoutId.current)
     if (videoRef.current?.srcObject) {
-      (videoRef.current.srcObject as MediaStream)
-        .getTracks()
-        .forEach((t) => t.stop());
-      videoRef.current.srcObject = null;
+      ;(videoRef.current.srcObject as MediaStream).getTracks().forEach((t) => t.stop())
+      videoRef.current.srcObject = null
     }
-  };
+  }
 
   /* ------------- Draw & attempt QR decode each frame ---------- */
   const scanFrame = () => {
-    if (!videoRef.current || !canvasRef.current || !scanningRef.current) return;
+    if (!videoRef.current || !canvasRef.current || !scanningRef.current) return
 
-    const video = videoRef.current;
+    const video = videoRef.current
     if (video.readyState < 2) {
-      frameReqId.current = requestAnimationFrame(scanFrame);
-      return;
+      frameReqId.current = requestAnimationFrame(scanFrame)
+      return
     }
 
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d", { willReadFrequently: true });
-    if (!ctx) return;
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext("2d", { willReadFrequently: true })
+    if (!ctx) return
 
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
 
-    const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const img = ctx.getImageData(0, 0, canvas.width, canvas.height)
     const code = jsQR(img.data, img.width, img.height, {
       inversionAttempts: "dontInvert",
-    });
+    })
 
     if (code) {
-      const text = code.data.trim().toLowerCase();
+      const text = code.data.trim().toLowerCase()
       if (text === "infispark") {
-        cleanupCamera();
-        setScanning(false);
-        setScanned(true);
-        return;
+        cleanupCamera()
+        setScanning(false)
+        setScanned(true)
+        return
       }
     }
-    frameReqId.current = requestAnimationFrame(scanFrame);
-  };
+    frameReqId.current = requestAnimationFrame(scanFrame)
+  }
 
   /* -------------------- Start scanning ------------------------ */
   const startScanning = async () => {
-    cleanupCamera();
-    setScanning(true);
-    setScanned(false);
-    setError(false);
+    cleanupCamera()
+    setScanning(true)
+    setScanned(false)
+    setError(false)
 
     try {
-      if (!navigator.mediaDevices?.getUserMedia) throw new Error();
+      if (!navigator.mediaDevices?.getUserMedia) throw new Error()
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: { ideal: "environment" } },
-      });
+      })
 
-      if (!videoRef.current) throw new Error();
-      videoRef.current.srcObject = stream;
-      videoRef.current.setAttribute("playsinline", "true");
+      if (!videoRef.current) throw new Error()
+      videoRef.current.srcObject = stream
+      videoRef.current.setAttribute("playsinline", "true")
       const onLoaded = () => {
-        videoRef.current?.play();
-        scanningRef.current = true;
-        frameReqId.current = requestAnimationFrame(scanFrame);
-      };
+        videoRef.current?.play()
+        scanningRef.current = true
+        frameReqId.current = requestAnimationFrame(scanFrame)
+      }
       if (videoRef.current.readyState >= 2) {
-        onLoaded();
+        onLoaded()
       } else {
         videoRef.current.addEventListener("loadedmetadata", onLoaded, {
           once: true,
-        });
+        })
       }
-      
 
-      setCameraPermission(true);
+      setCameraPermission(true)
       timeoutId.current = setTimeout(() => {
-        if (scanningRef.current) simulateError();
-      }, 30_000);
+        if (scanningRef.current) simulateError()
+      }, 30_000)
     } catch (e) {
-      console.error("Error accessing camera:", e);
-      setCameraPermission(false);
-      setScanning(false);
-      setError(true);
+      console.error("Error accessing camera:", e)
+      setCameraPermission(false)
+      setScanning(false)
+      setError(true)
     }
-  };
+  }
 
   const simulateError = () => {
-    cleanupCamera();
-    setScanning(false);
-    setScanned(false);
-    setError(true);
-  };
+    cleanupCamera()
+    setScanning(false)
+    setScanned(false)
+    setError(true)
+  }
 
   /* --------------- Razorpay dynamic loader -------------------- */
   const loadRazorpayScript = () =>
     new Promise<boolean>((res) => {
-      if ((window as any).Razorpay) return res(true);
-      const s = document.createElement("script");
-      s.src = "https://checkout.razorpay.com/v1/checkout.js";
-      s.onload = () => res(true);
-      s.onerror = () => res(false);
-      document.body.appendChild(s);
-    });
+      if ((window as any).Razorpay) return res(true)
+      const s = document.createElement("script")
+      s.src = "https://checkout.razorpay.com/v1/checkout.js"
+      s.onload = () => res(true)
+      s.onerror = () => res(false)
+      document.body.appendChild(s)
+    })
 
   /* ----------- Helper: amount ⇒ status-seconds ---------------- */
   const amountToSeconds = (amount: number, label: string): number => {
-    if (amount === 1) return 5;           // ₹1  →  5 s
-    if (amount === 2) return 10;          // ₹2  → 10 s
+    if (amount === 1) return 5 // ₹1  →  5 s
+    if (amount === 2) return 10 // ₹2  → 10 s
 
     // For plan labels like "30 Minutes", "2 Hours", etc.
-    const m = label.match(/(\d+)\s*(Minutes?|Hours?)/i);
+    const m = label.match(/(\d+)\s*(Minutes?|Hours?)/i)
     if (m) {
-      const value = parseInt(m[1], 10);
-      return /hour/i.test(m[2]) ? value * 3600 : value * 60;
+      const value = Number.parseInt(m[1], 10)
+      return /hour/i.test(m[2]) ? value * 3600 : value * 60
     }
     // Fallback – convert ₹→seconds  (1 ₹ ≈ 60 s)
-    return amount * 60;
-  };
+    return amount * 60
+  }
 
   /* ------------------ Payment handler ------------------------- */
   const handlePayment = async () => {
-    if (!scanned) return;
-    const ok = await loadRazorpayScript();
-    if (!ok) return alert("Razorpay SDK failed to load. Are you online?");
+    if (!scanned) return
+    const ok = await loadRazorpayScript()
+    if (!ok) return alert("Razorpay SDK failed to load. Are you online?")
 
     const opts = {
       key: "rzp_test_0M6qo3zzUUkUCv",
       amount: selectedPlan.price * 100,
       currency: "INR",
-      name: "Bolt.Earth",
+      name: "EV Energy",
       description: `${selectedPlan.label} Charging Payment`,
       handler: async (resp: any) => {
-        const user = auth.currentUser;
-        if (!user) return;
+        const user = auth.currentUser
+        if (!user) return
 
         /* ---------- 1️⃣  compute seconds for device/status ---------- */
-        const seconds = amountToSeconds(selectedPlan.price, selectedPlan.label);
+        const seconds = amountToSeconds(selectedPlan.price, selectedPlan.label)
 
         /* ---------- 2️⃣  write status ------------------------------ */
-        await set(ref(db, "device/status"), seconds);
+        await set(ref(db, "device/status"), seconds)
 
         /* ---------- 3️⃣  append history --------------------------- */
-        const histRef = ref(db, `users/${user.uid}/history`);
-        const newRef = push(histRef);
+        const histRef = ref(db, `users/${user.uid}/history`)
+        const newRef = push(histRef)
         await set(newRef, {
           plan: selectedPlan.label,
           amount: selectedPlan.price,
           seconds,
           transactionId: resp.razorpay_payment_id,
           date: new Date().toISOString(),
-        });
+        })
 
-        setChargingSeconds(seconds);
-setShowSuccessModal(true);
-
+        setChargingSeconds(seconds)
+        setShowSuccessModal(true)
       },
       prefill: {
         name: auth.currentUser?.displayName ?? "",
         email: auth.currentUser?.email ?? "",
       },
-      notes: { address: "Bolt.Earth Charging Station" },
+      notes: { address: "EV Energy Charging Station" },
       theme: { color: "#00c853" },
-    } as any;
-
-    new (window as any).Razorpay(opts).open();
-  };
+    } as any
+    ;new (window as any).Razorpay(opts).open()
+  }
 
   /* ----------------------------- UI ---------------------------- */
   return (
@@ -245,10 +232,28 @@ setShowSuccessModal(true);
       {/* Header */}
       <header className="bg-[#00c853] text-white py-4">
         <div className="container mx-auto px-4">
-          <div className="flex items-center">
+          <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center">
               <ArrowLeft className="w-5 h-5 mr-2" />
               <span>Back to Home</span>
+            </Link>
+            <Link
+              href="/profile"
+              className="flex items-center justify-center w-10 h-10 bg-white/20 rounded-full hover:bg-white/30 transition-colors"
+            >
+              {auth.currentUser?.photoURL ? (
+                <img
+                  src={auth.currentUser.photoURL || "/placeholder.svg"}
+                  alt="Profile"
+                  className="w-8 h-8 rounded-full object-cover border-2 border-white"
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-white/90 text-[#00c853] flex items-center justify-center font-bold text-lg">
+                  {auth.currentUser?.displayName?.[0]?.toUpperCase() ||
+                    auth.currentUser?.email?.[0]?.toUpperCase() ||
+                    "U"}
+                </div>
+              )}
             </Link>
           </div>
         </div>
@@ -260,8 +265,7 @@ setShowSuccessModal(true);
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold mb-2">Scan&nbsp;&amp;&nbsp;Pay</h1>
             <p className="text-gray-600">
-              Scan the QR code on your charging station to begin charging your
-              electric vehicle.
+              Scan the QR code on your charging station to begin charging your electric vehicle.
             </p>
           </div>
 
@@ -273,9 +277,7 @@ setShowSuccessModal(true);
               {!scanning && !scanned && !error && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-6 text-center">
                   <Zap className="w-16 h-16 text-[#00c853] mb-4" />
-                  <p className="mb-4">
-                    Point your camera at the QR code on the charging station
-                  </p>
+                  <p className="mb-4">Point your camera at the QR code on the charging station</p>
                   <button
                     onClick={startScanning}
                     className="bg-[#00c853] text-white px-6 py-3 rounded-full font-medium hover:bg-[#00c853]/90 transition-colors"
@@ -288,11 +290,7 @@ setShowSuccessModal(true);
               {/* Scanning live */}
               {scanning && (
                 <>
-                  <video
-                    ref={videoRef}
-                    className="absolute inset-0 w-full h-full object-cover"
-                    muted
-                  />
+                  <video ref={videoRef} className="absolute inset-0 w-full h-full object-cover" muted />
                   <canvas ref={canvasRef} className="hidden" />
                   <div className="absolute inset-0 border-[3px] border-[#00c853] m-12 rounded-lg" />
                   <div className="absolute inset-0 flex items-center justify-center">
@@ -308,9 +306,7 @@ setShowSuccessModal(true);
                     <CheckCircle2 className="w-10 h-10 text-[#00c853]" />
                   </div>
                   <h2 className="text-xl font-bold mb-1">Scanner Found!</h2>
-                  <p className="text-gray-600 mb-4">
-                    QR verified – charger ready for payment.
-                  </p>
+                  <p className="text-gray-600 mb-4">QR verified – charger ready for payment.</p>
                 </div>
               )}
 
@@ -340,9 +336,7 @@ setShowSuccessModal(true);
             {scanned && (
               <div className="p-6">
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-4">
-                    Charger Information
-                  </h3>
+                  <h3 className="text-lg font-semibold mb-4">Charger Information</h3>
                   <div className="space-y-3">
                     <div className="flex justify-between">
                       <span className="text-gray-500">Charger ID</span>
@@ -358,22 +352,18 @@ setShowSuccessModal(true);
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500">Status</span>
-                      <span className="font-medium text-[#00c853]">
-                        {chargerInfo.status}
-                      </span>
+                      <span className="font-medium text-[#00c853]">{chargerInfo.status}</span>
                     </div>
                   </div>
                 </div>
 
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-4">
-                    Select Charging Plan
-                  </h3>
+                  <h3 className="text-lg font-semibold mb-4">Select Charging Plan</h3>
                   <select
                     value={selectedPlan.id}
                     onChange={(e) => {
-                      const plan = plans.find((p) => p.id === e.target.value);
-                      if (plan) setSelectedPlan(plan);
+                      const plan = plans.find((p) => p.id === e.target.value)
+                      if (plan) setSelectedPlan(plan)
                     }}
                     className="w-full p-2 border border-gray-300 rounded"
                   >
@@ -438,22 +428,20 @@ setShowSuccessModal(true);
         </div>
       </div>
       {showSuccessModal && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-    <div className="bg-white rounded-2xl shadow-lg p-6 max-w-sm w-full text-center">
-      <CheckCircle2 className="mx-auto w-12 h-12 text-green-600 mb-4" />
-      <h2 className="text-xl font-bold mb-2">Charging Started!</h2>
-      <p className="text-gray-600 mb-4">
-        Your charger is now active for {chargingSeconds} seconds.
-      </p>
-      <button
-        onClick={() => setShowSuccessModal(false)}
-        className="bg-[#00c853] text-white px-6 py-2 rounded-full"
-      >
-        Close
-      </button>
-    </div>
-  </div>
-)}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-2xl shadow-lg p-6 max-w-sm w-full text-center">
+            <CheckCircle2 className="mx-auto w-12 h-12 text-green-600 mb-4" />
+            <h2 className="text-xl font-bold mb-2">Charging Started!</h2>
+            <p className="text-gray-600 mb-4">Your charger is now active for {chargingSeconds} seconds.</p>
+            <button
+              onClick={() => setShowSuccessModal(false)}
+              className="bg-[#00c853] text-white px-6 py-2 rounded-full"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="bg-gray-50 py-6">
@@ -463,14 +451,12 @@ setShowSuccessModal(true);
               <div className="relative w-8 h-8 bg-[#00c853] rounded-full flex items-center justify-center mr-2">
                 <Zap className="text-white w-5 h-5" />
               </div>
-              <span className="text-sm font-medium">BOLT.EARTH</span>
+              <span className="text-sm font-medium">EV Energy</span>
             </div>
-            <p className="text-gray-500 text-sm">
-              © {new Date().getFullYear()} Bolt.Earth. All rights reserved.
-            </p>
+            <p className="text-gray-500 text-sm">© {new Date().getFullYear()} EV Energy. All rights reserved.</p>
           </div>
         </div>
       </footer>
     </main>
-  );
+  )
 }

@@ -125,7 +125,7 @@ const LoginPage = () => {
               <Zap className="w-8 h-8" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold">Welcome to Bolt.Earth</h1>
+          <h1 className="text-2xl font-bold">Welcome to EV Energy</h1>
           <p className="text-white/80 mt-1">Sign in to access your EV charging account</p>
         </div>
 

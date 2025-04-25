@@ -171,7 +171,7 @@ export default function AdminPanel() {
                 <div className="relative w-8 h-8 bg-[#00c853] rounded-full flex items-center justify-center">
                   <Zap className="text-white w-5 h-5" />
                 </div>
-                <span className="ml-2 text-sm uppercase tracking-wider font-medium">BOLT.EARTH</span>
+                <span className="ml-2 text-sm uppercase tracking-wider font-medium">EV Energy</span>
               </Link>
 
               <div className="flex items-center space-x-4">
@@ -527,9 +527,9 @@ export default function AdminPanel() {
                 <div className="relative w-8 h-8 bg-[#00c853] rounded-full flex items-center justify-center mr-2">
                   <Zap className="text-white w-5 h-5" />
                 </div>
-                <span className="text-sm font-medium">BOLT.EARTH</span>
+                <span className="text-sm font-medium">EV Energy</span>
               </div>
-              <p className="text-gray-500 text-sm">© {new Date().getFullYear()} Bolt.Earth. All rights reserved.</p>
+              <p className="text-gray-500 text-sm">© {new Date().getFullYear()} EV Energy. All rights reserved.</p>
             </div>
           </div>
         </footer>
