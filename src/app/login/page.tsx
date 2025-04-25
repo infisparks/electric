@@ -60,7 +60,7 @@ const LoginPage = () => {
         }
       } else {
         // User exists; navigate to the homepage
-        router.push("/");
+        router.push("/home");
       }
     } catch (error: any) {
       console.error("Error during sign-in:", error);
@@ -102,7 +102,7 @@ const LoginPage = () => {
           lastLogin: new Date().toISOString(),
         });
         setShowRegistration(false);
-        router.push("/");
+        router.push("/home");
       } catch (error: any) {
         console.error("Error saving user details:", error);
         setError(error.message || "Failed to save user details");
