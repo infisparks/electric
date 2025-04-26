@@ -3,7 +3,11 @@
   --foreground-rgb: 18, 18, 18;
   --background-rgb: 255, 255, 255;
 }
-
+body{
+  margin: 0px;
+  padding: 0px;
+}
+/* 
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb));
@@ -18,4 +22,4 @@ body {
 .animate-in {
   opacity: 1 !important;
   transform: translateY(0) !important;
-}
+} */
