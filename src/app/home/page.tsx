@@ -6,7 +6,7 @@ import { ArrowLeft, Battery, Zap, CheckCircle2, AlertCircle } from "lucide-react
 import { useRouter } from "next/navigation"
 import { auth, db } from "../../firebase"
 import { ref, push, set } from "firebase/database"
-import jsQR from "jsQR"
+import jsQR from "jsqr"
 
 
 /**
