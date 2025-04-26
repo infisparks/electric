@@ -7,7 +7,7 @@ import { onAuthStateChanged } from "firebase/auth"
 
 // This is a placeholder for a real admin check
 // In a real application, you would check if the user has admin privileges
-const ADMIN_EMAILS = ["admin@example.com", "infisparks@gmail.com", "moinzariwala99@gmail.com"]
+const ADMIN_EMAILS = ["admin@example.com", "infisparks@gmail.com", "moinzariwala99@gmail.com","kfaiz9940@gmail.com"]
 
 export default function AdminAuthCheck({ children }: { children: React.ReactNode }) {
   const router = useRouter()
