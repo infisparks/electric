@@ -8,6 +8,7 @@ import { auth, db } from "../../firebase"
 import { ref, push, set } from "firebase/database"
 import jsQR from "jsQR"
 
+
 /**
  * QRPage – scans webcam frames with jsQR.
  * Succeeds only when the decoded text === "infispark" (case-insensitive).
