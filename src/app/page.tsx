@@ -1,8 +1,8 @@
-"use client";
+"use client"
 
-import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
+import { useEffect, useRef, useState } from "react"
+import Image from "next/image"
+import Link from "next/link"
 import {
   ShoppingCart,
   Zap,
@@ -16,19 +16,23 @@ import {
   Smartphone,
   Cloud,
   LineChart,
-} from "lucide-react";
+  Linkedin,
+  Mail,
+  Twitter,
+} from "lucide-react"
 
 export default function Home() {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [activeSection, setActiveSection] = useState("");
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false)
+  const [activeSection, setActiveSection] = useState("")
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   // References for sections to be animated
-  const heroRef = useRef<HTMLElement>(null);
-  const productsRef = useRef<HTMLElement>(null);
-  const solutionsRef = useRef<HTMLElement>(null);
-  const statsRef = useRef<HTMLElement>(null);
-  const ctaRef = useRef<HTMLElement>(null);
+  const heroRef = useRef<HTMLElement>(null)
+  const productsRef = useRef<HTMLElement>(null)
+  const solutionsRef = useRef<HTMLElement>(null)
+  const statsRef = useRef<HTMLElement>(null)
+  const teamRef = useRef<HTMLElement>(null)
+  const ctaRef = useRef<HTMLElement>(null)
 
   // Observer for animations
   useEffect(() => {
@@ -36,25 +40,22 @@ export default function Home() {
       root: null,
       rootMargin: "0px",
       threshold: 0.1,
-    };
+    }
 
     const handleIntersect = (entries: IntersectionObserverEntry[]) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          entry.target.classList.add("animate-in");
+          entry.target.classList.add("animate-in")
 
           // Update active section for navigation
           if (entry.target.id) {
-            setActiveSection(entry.target.id);
+            setActiveSection(entry.target.id)
           }
         }
-      });
-    };
+      })
+    }
 
-    const observer = new IntersectionObserver(
-      handleIntersect,
-      observerOptions,
-    );
+    const observer = new IntersectionObserver(handleIntersect, observerOptions)
 
     // Observe all sections
     const sections = [
@@ -62,45 +63,44 @@ export default function Home() {
       productsRef.current,
       solutionsRef.current,
       statsRef.current,
+      teamRef.current,
       ctaRef.current,
-    ];
+    ]
 
     sections.forEach((section) => {
-      if (section) observer.observe(section);
-    });
+      if (section) observer.observe(section)
+    })
 
-    return () => observer.disconnect();
-  }, []);
+    return () => observer.disconnect()
+  }, [])
 
   // Handle scroll effects
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
+      setIsScrolled(window.scrollY > 20)
+    }
 
-    window.addEventListener("scroll", handleScroll);
-    handleScroll(); // Initial check
+    window.addEventListener("scroll", handleScroll)
+    handleScroll() // Initial check
 
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
 
   // Scroll to section smoothly
   const scrollToSection = (id: string) => {
-    setMobileMenuOpen(false);
-    const element = document.getElementById(id);
+    setMobileMenuOpen(false)
+    const element = document.getElementById(id)
     if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
+      element.scrollIntoView({ behavior: "smooth" })
     }
-  };
+  }
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-white to-gray-50 text-[#121212] overflow-hidden">
       {/* Header */}
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled
-            ? "bg-white/90 backdrop-blur-md py-3 shadow-sm"
-            : "bg-transparent py-5"
+          isScrolled ? "bg-white/90 backdrop-blur-md py-3 shadow-sm" : "bg-transparent py-5"
         }`}
       >
         <div className="container mx-auto px-4 sm:px-6 flex items-center justify-between">
@@ -119,15 +119,14 @@ export default function Home() {
               { name: "Products", id: "products" },
               { name: "Solutions", id: "solutions" },
               { name: "Statistics", id: "stats" },
+              { name: "Team", id: "team" },
               { name: "Company", id: "company" },
             ].map((item) => (
               <button
                 key={item.id}
                 onClick={() => scrollToSection(item.id)}
                 className={`text-sm font-medium transition-colors relative ${
-                  activeSection === item.id
-                    ? "text-[#00c853]"
-                    : "text-gray-800 hover:text-[#00c853]"
+                  activeSection === item.id ? "text-[#00c853]" : "text-gray-800 hover:text-[#00c853]"
                 }`}
               >
                 {item.name}
@@ -190,6 +189,7 @@ export default function Home() {
                 { name: "Products", id: "products" },
                 { name: "Solutions", id: "solutions" },
                 { name: "Statistics", id: "stats" },
+                { name: "Team", id: "team" },
                 { name: "Company", id: "company" },
                 { name: "Contact Us", id: "contact" },
               ].map((item) => (
@@ -215,13 +215,13 @@ export default function Home() {
       >
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-[#00c853]/5 via-white/40 to-white z-10"></div>
-          <Image
+          {/* <Image
             src="https://images.pexels.com/photos/7294543/pexels-photo-7294543.jpeg"
             alt="Modern EV Charging Station"
             fill
             priority
             className="object-cover object-center opacity-90"
-          />
+          /> */}
         </div>
 
         <div className="container mx-auto px-4 sm:px-6 relative z-20 text-center lg:text-left lg:grid lg:grid-cols-2 lg:gap-12 lg:items-center">
@@ -231,8 +231,8 @@ export default function Home() {
               <span className="text-[#00c853] block mt-2">EV Charging</span>
             </h1>
             <p className="text-lg text-gray-700 max-w-2xl mx-auto lg:mx-0 mb-8">
-              Pioneering smart charging solutions for a sustainable future. Join
-              us in building the next generation of EV infrastructure.
+              Pioneering smart charging solutions for a sustainable future. Join us in building the next generation of
+              EV infrastructure.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
               {/* Changed button as requested */}
@@ -247,8 +247,8 @@ export default function Home() {
                 href="#about"
                 className="border-2 border-[#00c853] text-[#00c853] px-8 py-[0.9rem] rounded-full text-base font-medium hover:bg-[#00c853]/5 transition-colors w-full sm:w-auto"
                 onClick={(e) => {
-                  e.preventDefault();
-                  scrollToSection("solutions");
+                  e.preventDefault()
+                  scrollToSection("solutions")
                 }}
               >
                 Our Technology
@@ -259,12 +259,14 @@ export default function Home() {
           <div className="hidden lg:block relative h-[500px] mt-12 lg:mt-0">
             <div className="absolute inset-0 bg-[#00c853]/10 rounded-2xl transform rotate-3"></div>
             <div className="absolute inset-0 bg-white rounded-2xl shadow-xl overflow-hidden transform -rotate-3 transition-transform hover:rotate-0 duration-500">
-              <img
-                src="https://worldautoforum.com/wp-content/uploads/2025/04/Car-Charging-Port-Car-Charging-Gun.jpg"
-                alt="Smart EV Charging"
-                // objectFit="cover"
-                className="object-cover object-center"
-              />
+              <div className="w-full h-full relative">
+                <Image
+                  src="https://worldautoforum.com/wp-content/uploads/2025/04/Car-Charging-Port-Car-Charging-Gun.jpg"
+                  alt="Smart EV Charging"
+                  fill
+                  className="object-cover object-center"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -278,12 +280,8 @@ export default function Home() {
       >
         <div className="container mx-auto px-4 sm:px-6">
           <div className="text-center mb-16">
-            <span className="text-[#00c853] text-sm font-semibold tracking-wider uppercase">
-              Innovation
-            </span>
-            <h2 className="text-3xl md:text-4xl font-bold mt-2">
-              Smart Charging Solutions
-            </h2>
+            <span className="text-[#00c853] text-sm font-semibold tracking-wider uppercase">Innovation</span>
+            <h2 className="text-3xl md:text-4xl font-bold mt-2">Smart Charging Solutions</h2>
             <div className="w-20 h-1 bg-[#00c853] mx-auto mt-4 rounded-full"></div>
           </div>
 
@@ -291,42 +289,21 @@ export default function Home() {
             {[
               {
                 title: "Smart Home Hub",
-                description:
-                  "Intelligent residential charging with dynamic load balancing",
-                image:
-                  "https://images.pexels.com/photos/3894378/pexels-photo-3894378.jpeg",
-                features: [
-                  "Smart scheduling",
-                  "Solar integration",
-                  "Mobile control",
-                  "Energy insights",
-                ],
+                description: "Intelligent residential charging with dynamic load balancing",
+                image: "https://images.pexels.com/photos/3894378/pexels-photo-3894378.jpeg",
+                features: ["Smart scheduling", "Solar integration", "Mobile control", "Energy insights"],
               },
               {
                 title: "Commercial Station",
-                description:
-                  "Enterprise-grade charging infrastructure for businesses",
-                image:
-                  "https://images.pexels.com/photos/9511156/pexels-photo-9511156.jpeg",
-                features: [
-                  "Fleet management",
-                  "Load distribution",
-                  "Payment system",
-                  "24/7 support",
-                ],
+                description: "Enterprise-grade charging infrastructure for businesses",
+                image: "https://images.pexels.com/photos/9511156/pexels-photo-9511156.jpeg",
+                features: ["Fleet management", "Load distribution", "Payment system", "24/7 support"],
               },
               {
                 title: "Network Control",
-                description:
-                  "Advanced management platform for charging networks",
-                image:
-                  "https://images.pexels.com/photos/3859986/pexels-photo-3859986.jpeg",
-                features: [
-                  "Real-time monitoring",
-                  "Predictive maintenance",
-                  "Usage analytics",
-                  "Remote control",
-                ],
+                description: "Advanced management platform for charging networks",
+                image: "https://images.pexels.com/photos/3859986/pexels-photo-3859986.jpeg",
+                features: ["Real-time monitoring", "Predictive maintenance", "Usage analytics", "Remote control"],
               },
             ].map((product, index) => (
               <div
@@ -335,7 +312,7 @@ export default function Home() {
               >
                 <div className="h-52 relative overflow-hidden">
                   <Image
-                    src={product.image}
+                    src={product.image || "/placeholder.svg"}
                     alt={product.title}
                     fill
                     className="object-cover object-center transition-transform duration-700 group-hover:scale-110"
@@ -348,20 +325,14 @@ export default function Home() {
 
                   <ul className="mb-5 space-y-2">
                     {product.features.map((feature, idx) => (
-                      <li
-                        key={idx}
-                        className="text-sm text-gray-600 flex items-center"
-                      >
+                      <li key={idx} className="text-sm text-gray-600 flex items-center">
                         <span className="w-1.5 h-1.5 bg-[#00c853] rounded-full mr-2"></span>
                         {feature}
                       </li>
                     ))}
                   </ul>
 
-                  <Link
-                    href="#"
-                    className="inline-flex items-center text-[#00c853] hover:underline font-medium"
-                  >
+                  <Link href="#" className="inline-flex items-center text-[#00c853] hover:underline font-medium">
                     Discover more
                     <ChevronRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
                   </Link>
@@ -406,12 +377,8 @@ export default function Home() {
                 key={index}
                 className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col items-center text-center"
               >
-                <div className="bg-[#00c853]/10 p-3 rounded-full mb-4">
-                  {stat.icon}
-                </div>
-                <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">
-                  {stat.value}
-                </h3>
+                <div className="bg-[#00c853]/10 p-3 rounded-full mb-4">{stat.icon}</div>
+                <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">{stat.value}</h3>
                 <p className="text-sm text-gray-500">{stat.label}</p>
               </div>
             ))}
@@ -420,7 +387,7 @@ export default function Home() {
       </section>
 
       {/* Technology Section */}
-      <section
+      {/* <section
         id="solutions"
         ref={solutionsRef}
         className="py-20 bg-white opacity-0 transform translate-y-10 transition-all duration-1000"
@@ -428,16 +395,11 @@ export default function Home() {
         <div className="container mx-auto px-4 sm:px-6">
           <div className="flex flex-col md:flex-row items-center gap-12">
             <div className="md:w-1/2 order-2 md:order-1">
-              <span className="text-[#00c853] text-sm font-semibold tracking-wider uppercase">
-                Our Technology
-              </span>
-              <h2 className="text-3xl md:text-4xl font-bold mt-2 mb-6">
-                Next-Gen Charging Platform
-              </h2>
+              <span className="text-[#00c853] text-sm font-semibold tracking-wider uppercase">Our Technology</span>
+              <h2 className="text-3xl md:text-4xl font-bold mt-2 mb-6">Next-Gen Charging Platform</h2>
               <p className="text-gray-600 mb-8">
-                Our innovative charging platform combines cutting-edge hardware
-                with intelligent software to deliver an unmatched charging
-                experience. Built for the future of mobility.
+                Our innovative charging platform combines cutting-edge hardware with intelligent software to deliver an
+                unmatched charging experience. Built for the future of mobility.
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
@@ -472,21 +434,14 @@ export default function Home() {
                       </div>
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold mb-1">
-                        {feature.title}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        {feature.description}
-                      </p>
+                      <h3 className="text-lg font-semibold mb-1">{feature.title}</h3>
+                      <p className="text-sm text-gray-600">{feature.description}</p>
                     </div>
                   </div>
                 ))}
               </div>
 
-              <Link
-                href="#"
-                className="inline-flex items-center text-[#00c853] hover:underline font-medium"
-              >
+              <Link href="#" className="inline-flex items-center text-[#00c853] hover:underline font-medium">
                 Explore technology
                 <ChevronRight className="w-4 h-4 ml-1" />
               </Link>
@@ -506,25 +461,126 @@ export default function Home() {
 
               <div className="absolute -bottom-6 -right-6 bg-white rounded-lg shadow-lg p-6 max-w-[220px]">
                 <h4 className="text-lg font-bold mb-2">Innovation First</h4>
-                <p className="text-sm text-gray-600">
-                  Pioneering the future of EV charging technology
-                </p>
+                <p className="text-sm text-gray-600">Pioneering the future of EV charging technology</p>
               </div>
             </div>
+          </div>
+        </div>
+      </section> */}
+
+      {/* Team Section */}
+      <section
+        id="team"
+        ref={teamRef}
+        className="py-20 bg-[#f9f9f9] opacity-0 transform translate-y-10 transition-all duration-1000"
+      >
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="text-center mb-16">
+            <span className="text-[#00c853] text-sm font-semibold tracking-wider uppercase">Our Team</span>
+            <h2 className="text-3xl md:text-4xl font-bold mt-2">Meet Our Experts</h2>
+            <div className="w-20 h-1 bg-[#00c853] mx-auto mt-4 rounded-full"></div>
+            <p className="text-gray-600 max-w-2xl mx-auto mt-6">
+              Our talented team of professionals is dedicated to revolutionizing the EV charging industry with
+              innovative solutions and sustainable technology.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {[
+              {
+                name: "Maaz Arshad Khan",
+                role: "Pursuing electrical engineering final year",
+                image: "/27.jpg",
+                social: {
+                  linkedin: "#",
+                  twitter: "#",
+                  email: "mailto:maaz@example.com",
+                },
+              },
+              {
+                name: "Zaid Naim Baig Mirza",
+                role: "Pursuing electrical engineering final year",
+                image: "/28.jpg",
+                social: {
+                  linkedin: "#",
+                  twitter: "#",
+                  email: "mailto:zaid@example.com",
+                },
+              },
+              {
+                name: "Mohd Faiz Khan",
+                role: "Pursuing electrical engineering final year",
+                image: "/29.jpg",
+                social: {
+                  linkedin: "#",
+                  twitter: "#",
+                  email: "mailto:faiz@example.com",
+                },
+              },
+              {
+                name: "Khan Junaid Sadullah",
+                role: "Pursuing electrical engineering final year",
+                image: "/30.jpg",
+                social: {
+                  linkedin: "#",
+                  twitter: "#",
+                  email: "mailto:junaid@example.com",
+                },
+              },
+            ].map((member, index) => (
+              <div
+                key={index}
+                className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 group"
+              >
+                <div className="relative h-64 w-full overflow-hidden">
+                  <div className="w-full h-full relative">
+                    <Image
+                      src={member.image || "/placeholder.svg"}
+                      alt={member.name}
+                      fill
+                      className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
+                    />
+                  </div>
+                </div>
+                <div className="p-6">
+                  <h3 className="text-xl font-bold mb-1">{member.name}</h3>
+                  <p className="text-[#00c853] text-sm mb-4">{member.role}</p>
+                  <div className="flex space-x-3">
+                    <a
+                      href={member.social.linkedin}
+                      className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-[#00c853] hover:text-white transition-colors"
+                      aria-label={`${member.name}'s LinkedIn`}
+                    >
+                      <Linkedin className="w-4 h-4" />
+                    </a>
+                    <a
+                      href={member.social.twitter}
+                      className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-[#00c853] hover:text-white transition-colors"
+                      aria-label={`${member.name}'s Twitter`}
+                    >
+                      <Twitter className="w-4 h-4" />
+                    </a>
+                    <a
+                      href={member.social.email}
+                      className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-[#00c853] hover:text-white transition-colors"
+                      aria-label={`Email ${member.name}`}
+                    >
+                      <Mail className="w-4 h-4" />
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Vision Section */}
-      <section id="company" className="py-20 bg-[#f9f9f9]">
+      <section id="company" className="py-20 bg-white">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="text-center mb-16">
-            <span className="text-[#00c853] text-sm font-semibold tracking-wider uppercase">
-              Our Vision
-            </span>
-            <h2 className="text-3xl md:text-4xl font-bold mt-2">
-              Empowering Electric Mobility
-            </h2>
+            <span className="text-[#00c853] text-sm font-semibold tracking-wider uppercase">Our Vision</span>
+            <h2 className="text-3xl md:text-4xl font-bold mt-2">Empowering Electric Mobility</h2>
             <div className="w-20 h-1 bg-[#00c853] mx-auto mt-4 rounded-full"></div>
           </div>
 
@@ -542,13 +598,12 @@ export default function Home() {
               },
               {
                 title: "Accessibility",
-                description:
-                  "Making electric vehicle charging accessible and convenient for everyone, everywhere.",
+                description: "Making electric vehicle charging accessible and convenient for everyone, everywhere.",
               },
             ].map((item, index) => (
               <div
                 key={index}
-                className="bg-white rounded-xl p-8 shadow-sm hover:shadow-md transition-all duration-300"
+                className="bg-[#f9f9f9] rounded-xl p-8 shadow-sm hover:shadow-md transition-all duration-300"
               >
                 <h3 className="text-xl font-bold mb-4">{item.title}</h3>
                 <p className="text-gray-600">{item.description}</p>
@@ -574,12 +629,9 @@ export default function Home() {
         </div>
 
         <div className="container mx-auto px-4 sm:px-6 text-center relative z-10">
-          <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
-            Join the Electric Revolution
-          </h2>
+          <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Join the Electric Revolution</h2>
           <p className="text-white/90 text-lg mb-10 max-w-2xl mx-auto">
-            Be part of the future of sustainable transportation. Let build
-            the charging infrastructure of tomorrow.
+            Be part of the future of sustainable transportation. Let build the charging infrastructure of tomorrow.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
@@ -613,62 +665,36 @@ export default function Home() {
                 </span>
               </Link>
               <p className="text-gray-400 mb-6">
-                Powering the future of electric mobility with innovative
-                charging solutions.
+                Powering the future of electric mobility with innovative charging solutions.
               </p>
               <div className="flex space-x-4">
-                {["facebook", "twitter", "linkedin", "instagram"].map(
-                  (social) => (
-                    <Link
-                      key={social}
-                      href="#"
-                      className="w-9 h-9 rounded-full border border-gray-700 flex items-center justify-center hover:bg-[#00c853] hover:border-[#00c853] transition-colors"
-                    >
-                      <span className="sr-only">{social}</span>
-                      <svg
-                        className="w-4 h-4"
-                        aria-hidden="true"
-                        fill="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm3 8h-1.35c-.538 0-.65.221-.65.778V10h2l-.209 2H13v7h-3v-7H8v-2h2V7.692C10 5.923 10.931 5 13.029 5H15v3z" />
-                      </svg>
-                    </Link>
-                  ),
-                )}
+                {["facebook", "twitter", "linkedin", "instagram"].map((social) => (
+                  <Link
+                    key={social}
+                    href="#"
+                    className="w-9 h-9 rounded-full border border-gray-700 flex items-center justify-center hover:bg-[#00c853] hover:border-[#00c853] transition-colors"
+                  >
+                    <span className="sr-only">{social}</span>
+                    <svg className="w-4 h-4" aria-hidden="true" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm3 8h-1.35c-.538 0-.65.221-.65.778V10h2l-.209 2H13v7h-3v-7H8v-2h2V7.692C10 5.923 10.931 5 13.029 5H15v3z" />
+                    </svg>
+                  </Link>
+                ))}
               </div>
             </div>
 
             {[
               {
                 title: "Products",
-                links: [
-                  "Home Charger",
-                  "Fast Charger",
-                  "Network Hub",
-                  "Fleet Solutions",
-                  "Accessories",
-                ],
+                links: ["Home Charger", "Fast Charger", "Network Hub", "Fleet Solutions", "Accessories"],
               },
               {
                 title: "Company",
-                links: [
-                  "About Us",
-                  "Careers",
-                  "Press",
-                  "Blog",
-                  "Contact Us",
-                ],
+                links: ["About Us", "Careers", "Press", "Blog", "Contact Us"],
               },
               {
                 title: "Support",
-                links: [
-                  "Help Center",
-                  "Installation",
-                  "Maintenance",
-                  "FAQs",
-                  "Partner Portal",
-                ],
+                links: ["Help Center", "Installation", "Maintenance", "FAQs", "Partner Portal"],
               },
             ].map((category, idx) => (
               <div key={idx}>
@@ -717,5 +743,5 @@ export default function Home() {
         }
       `}</style>
     </main>
-  );
+  )
 }
