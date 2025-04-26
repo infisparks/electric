@@ -229,8 +229,7 @@ export default function Home() {
       <section
         id="hero"
         ref={heroRef}
-        className="min-h-screen flex items-center justify-center relative pt-20 opacity-0 transform translate-y-6 transition-all duration-1000"
-        style={{
+        className="min-h-screen flex items-center justify-center relative"        style={{
           backgroundImage: "url('https://cdn.prod.website-files.com/63053218ec1dde0a99cc4fee/66bb45f7ad7e0b19b50c7a07_Cost%20and%20Benefits%20of%20Solar-Powered%20EV%20Charging%20Stations.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
