@@ -26,6 +26,8 @@ export default function QRPage() {
   const [cameraPermission, setCameraPermission] = useState<boolean | null>(null)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [chargingSeconds, setChargingSeconds] = useState(0)
+  const [manualCode, setManualCode] = useState("")
+  const [showManualInput, setShowManualInput] = useState(false)
 
   /* --------------------------- Refs ---------------------------- */
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -155,6 +157,16 @@ export default function QRPage() {
     setError(true)
   }
 
+  const handleManualEntry = () => {
+    if (manualCode.trim().toLowerCase() === "infispark") {
+      setScanned(true)
+      setShowManualInput(false)
+      setError(false)
+    } else {
+      alert("Invalid charger code")
+    }
+  }
+
   /* --------------- Razorpay dynamic loader -------------------- */
   const loadRazorpayScript = () =>
     new Promise<boolean>((res) => {
@@ -188,7 +200,7 @@ export default function QRPage() {
     if (!ok) return alert("Razorpay SDK failed to load. Are you online?")
 
     const opts = {
-      key: "rzp_test_0M6qo3zzUUkUCv",
+      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
       amount: selectedPlan.price * 100,
       currency: "INR",
       name: "EV Energy",
@@ -409,20 +421,48 @@ export default function QRPage() {
                   </ol>
                 </div>
 
-                <div className="flex justify-center space-x-4 p-6">
-                  <button
-                    onClick={startScanning}
-                    className="bg-[#00c853] text-white px-6 py-3 rounded-full font-medium hover:bg-[#00c853]/90 transition-colors"
-                  >
-                    Scan&nbsp;QR&nbsp;Code
-                  </button>
-                  <button
-                    onClick={simulateError}
-                    className="border border-gray-300 text-gray-700 px-6 py-3 rounded-full font-medium hover:bg-gray-50 transition-colors"
-                  >
-                    Enter&nbsp;Manually
-                  </button>
-                </div>
+                {/* Manual input section */}
+                {showManualInput ? (
+                  <div className="flex flex-col space-y-4 p-6">
+                    <input
+                      type="text"
+                      placeholder="Enter Charger Code"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:border-[#00c853]"
+                      value={manualCode}
+                      onChange={(e) => setManualCode(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleManualEntry()}
+                    />
+                    <div className="flex space-x-4">
+                      <button
+                        onClick={handleManualEntry}
+                        className="flex-1 bg-[#00c853] text-white px-6 py-3 rounded-full font-medium hover:bg-[#00c853]/90 transition-colors"
+                      >
+                        Verify Code
+                      </button>
+                      <button
+                        onClick={() => setShowManualInput(false)}
+                        className="flex-1 border border-gray-300 text-gray-700 px-6 py-3 rounded-full font-medium hover:bg-gray-50 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex justify-center space-x-4 p-6">
+                    <button
+                      onClick={startScanning}
+                      className="bg-[#00c853] text-white px-6 py-3 rounded-full font-medium hover:bg-[#00c853]/90 transition-colors"
+                    >
+                      Scan&nbsp;QR&nbsp;Code
+                    </button>
+                    <button
+                      onClick={() => setShowManualInput(true)}
+                      className="border border-gray-300 text-gray-700 px-6 py-3 rounded-full font-medium hover:bg-gray-50 transition-colors"
+                    >
+                      Enter&nbsp;Manually
+                    </button>
+                  </div>
+                )}
               </>
             )}
           </div>
