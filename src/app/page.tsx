@@ -740,7 +740,7 @@ export default function Home() {
             <h2 className="text-3xl md:text-5xl font-bold mt-2">Empowering Electric Mobility</h2>
             <div className="w-20 h-1 bg-[#00c853] mx-auto mt-6 rounded-full"></div>
             <p className="text-gray-600 max-w-2xl mx-auto mt-6">
-              We're on a mission to accelerate the world's transition to sustainable energy through innovative charging solutions.
+              We&apos;re on a mission to accelerate the world&apos;s transition to sustainable energy through innovative charging solutions.
             </p>
           </div>
 
@@ -807,7 +807,7 @@ export default function Home() {
               Join the Electric Revolution
             </motion.h2>
             <motion.p variants={fadeInUp} className="text-white/90 text-lg mb-10">
-              Be part of the future of sustainable transportation. Let's build the charging infrastructure of tomorrow, together.
+              Be part of the future of sustainable transportation. Let&apos;s build the charging infrastructure of tomorrow, together.
             </motion.p>
             <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link

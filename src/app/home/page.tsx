@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { ArrowLeft, Battery, Zap, CheckCircle2, AlertCircle } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { auth, db } from "../../firebase"
@@ -255,9 +256,11 @@ export default function QRPage() {
               className="flex items-center justify-center w-10 h-10 bg-white/20 rounded-full hover:bg-white/30 transition-colors"
             >
               {auth.currentUser?.photoURL ? (
-                <img
+                <Image
                   src={auth.currentUser.photoURL || "/placeholder.svg"}
                   alt="Profile"
+                  width={32}
+                  height={32}
                   className="w-8 h-8 rounded-full object-cover border-2 border-white"
                 />
               ) : (
