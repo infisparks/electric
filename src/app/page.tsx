@@ -3,15 +3,14 @@
 import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { ShoppingCart, Zap, ChevronRight, ArrowRight, Leaf, Globe, Timer, Shield, Settings, Smartphone, Cloud, LineChart, Linkedin, Mail, Twitter, ChevronDown, Play, ArrowUpRight } from 'lucide-react'
-import { motion } from "framer-motion"
+import { ShoppingCart, Zap, ChevronRight, ArrowRight, Leaf, Globe, Timer, Shield, Settings, Smartphone, Cloud, LineChart, Linkedin, Mail, Twitter, ChevronDown, Play, ArrowUpRight, Menu, X, Sparkles, Battery, Cpu } from 'lucide-react'
+import { motion, useScroll, useTransform } from "framer-motion"
 
 export default function Home() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [activeSection, setActiveSection] = useState("")
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
-  // References for sections to be animated
   const heroRef = useRef<HTMLElement>(null)
   const productsRef = useRef<HTMLElement>(null)
   const solutionsRef = useRef<HTMLElement>(null)
@@ -19,20 +18,20 @@ export default function Home() {
   const teamRef = useRef<HTMLElement>(null)
   const ctaRef = useRef<HTMLElement>(null)
 
-  // Observer for animations
+  const { scrollY } = useScroll()
+  const heroParallax = useTransform(scrollY, [0, 600], [0, 120])
+
   useEffect(() => {
     const observerOptions = {
       root: null,
-      rootMargin: "0px",
-      threshold: 0.1,
+      rootMargin: "-20px",
+      threshold: 0.08,
     }
 
     const handleIntersect = (entries: IntersectionObserverEntry[]) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           entry.target.classList.add("animate-in")
-
-          // Update active section for navigation
           if (entry.target.id) {
             setActiveSection(entry.target.id)
           }
@@ -41,98 +40,96 @@ export default function Home() {
     }
 
     const observer = new IntersectionObserver(handleIntersect, observerOptions)
-
-    // Observe all sections
-    const sections = [
-      heroRef.current,
-      productsRef.current,
-      solutionsRef.current,
-      statsRef.current,
-      teamRef.current,
-      ctaRef.current,
-    ]
-
-    sections.forEach((section) => {
-      if (section) observer.observe(section)
-    })
-
+    const sections = [heroRef.current, productsRef.current, solutionsRef.current, statsRef.current, teamRef.current, ctaRef.current]
+    sections.forEach((section) => { if (section) observer.observe(section) })
     return () => observer.disconnect()
   }, [])
 
-  // Handle scroll effects
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20)
-    }
-
+    const handleScroll = () => setIsScrolled(window.scrollY > 30)
     window.addEventListener("scroll", handleScroll)
-    handleScroll() // Initial check
-
+    handleScroll()
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
-  // Scroll to section smoothly
   const scrollToSection = (id: string) => {
     setMobileMenuOpen(false)
     const element = document.getElementById(id)
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" })
-    }
+    if (element) element.scrollIntoView({ behavior: "smooth" })
   }
 
-  // Animation variants
   const fadeInUp = {
-    hidden: { opacity: 0, y: 60 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { 
-        duration: 0.8,
-        ease: [0.22, 1, 0.36, 1]
-      }
-    }
+    hidden: { opacity: 0, y: 50 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } }
   }
 
   const staggerContainer = {
     hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
+    visible: { opacity: 1, transition: { staggerChildren: 0.12 } }
   }
 
   const fadeIn = {
     hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1,
-      transition: { 
-        duration: 0.8
-      }
-    }
+    visible: { opacity: 1, transition: { duration: 0.9 } }
   }
 
+  const scaleIn = {
+    hidden: { opacity: 0, scale: 0.92 },
+    visible: { opacity: 1, scale: 1, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } }
+  }
+
+  const teamMembers = [
+    {
+      name: "Abu Wakas Siddique",
+      role: "Software Expert",
+      image: "/team/Abu Wakas Siddique.jpeg",
+      social: { linkedin: "#", twitter: "#", email: "mailto:abu@sparktech.io" },
+    },
+    {
+      name: "Khan Numan Abdul Sami",
+      role: "Hardware Specialist",
+      image: "/team/Khan Numan abdul sami.jpeg",
+      social: { linkedin: "#", twitter: "#", email: "mailto:numan@sparktech.io" },
+    },
+    {
+      name: "Khan Saad Abdulaziz",
+      role: "Software Expert",
+      image: "/team/Khana Saad Abdulaziz.jpeg",
+      social: { linkedin: "#", twitter: "#", email: "mailto:saad@sparktech.io" },
+    },
+    {
+      name: "Khan Zeeshan Abrar",
+      role: "Hardware Specialist",
+      image: "/team/Khana zeeshan Abrar.jpeg",
+      social: { linkedin: "#", twitter: "#", email: "mailto:zeeshan@sparktech.io" },
+    },
+  ]
+
   return (
-    <main className="min-h-screen bg-white text-[#121212] overflow-hidden">
-      {/* Header */}
+    <main className="min-h-screen bg-[#080c14] text-white overflow-hidden" style={{ fontFamily: "var(--font-inter), sans-serif" }}>
+
+      {/* ── HEADER ── */}
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled ? "bg-white/90 backdrop-blur-md py-3 shadow-sm" : "bg-transparent py-5"
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+          isScrolled
+            ? "bg-[#080c14]/90 backdrop-blur-xl border-b border-white/5 py-3 shadow-2xl shadow-black/30"
+            : "bg-transparent py-5"
         }`}
       >
-        <div className="container mx-auto px-4 sm:px-6 flex items-center justify-between">
-          <Link href="/" className="flex items-center group">
-            <div className="relative w-10 h-10 bg-[#00c853] rounded-full flex items-center justify-center transition-transform group-hover:scale-110">
-              <Zap className="text-white w-6 h-6" />
+        <div className="container mx-auto px-5 sm:px-8 flex items-center justify-between">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="relative w-10 h-10 flex items-center justify-center">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#00e676] to-[#00b248] rounded-xl rotate-3 group-hover:rotate-0 transition-transform duration-300" />
+              <Zap className="relative text-white w-5 h-5 z-10" strokeWidth={2.5} />
             </div>
-            <span className="ml-2 text-sm font-semibold tracking-wider">
-              <span className="text-[#00c853]">EV</span>ENERGY
+            <span className="text-lg font-bold tracking-tight" style={{ fontFamily: "var(--font-space-grotesk), sans-serif" }}>
+              <span className="text-[#00e676]">Spark</span>Tech
             </span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-8">
+          {/* Desktop Nav */}
+          <nav className="hidden lg:flex items-center gap-8">
             {[
               { name: "Products", id: "products" },
               { name: "Solutions", id: "solutions" },
@@ -143,66 +140,40 @@ export default function Home() {
               <button
                 key={item.id}
                 onClick={() => scrollToSection(item.id)}
-                className={`text-sm font-medium transition-colors relative ${
-                  activeSection === item.id ? "text-[#00c853]" : "text-gray-800 hover:text-[#00c853]"
+                className={`text-sm font-medium transition-all duration-200 relative group ${
+                  activeSection === item.id ? "text-[#00e676]" : "text-white/70 hover:text-white"
                 }`}
               >
                 {item.name}
-                {activeSection === item.id && (
-                  <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-[#00c853] rounded-full" />
-                )}
+                <span className={`absolute -bottom-1 left-0 h-px bg-[#00e676] transition-all duration-300 ${activeSection === item.id ? "w-full" : "w-0 group-hover:w-full"}`} />
               </button>
             ))}
           </nav>
 
-          <div className="flex items-center space-x-1 sm:space-x-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <Link
               href="/contact"
-              className="hidden sm:flex bg-[#00c853] text-white px-5 py-2 rounded-full text-sm font-medium hover:bg-[#00b048] transition-colors shadow-sm hover:shadow-md hover:shadow-[#00c853]/20"
+              className="hidden sm:flex items-center gap-2 bg-gradient-to-r from-[#00e676] to-[#00b248] text-[#080c14] px-5 py-2.5 rounded-full text-sm font-semibold hover:shadow-lg hover:shadow-[#00e676]/25 transition-all duration-300 hover:-translate-y-0.5"
             >
               Contact Us
             </Link>
-            <button className="relative p-2 hover:bg-gray-100 rounded-full transition-colors">
-              <ShoppingCart className="w-5 h-5 text-[#121212]" />
-              <span className="absolute top-0 right-0 w-4 h-4 bg-[#00c853] rounded-full text-white text-[10px] flex items-center justify-center">
-                2
-              </span>
+            <button className="relative p-2 hover:bg-white/10 rounded-full transition-colors">
+              <ShoppingCart className="w-5 h-5 text-white/80" />
+              <span className="absolute top-0.5 right-0.5 w-3.5 h-3.5 bg-[#00e676] rounded-full text-[#080c14] text-[9px] font-bold flex items-center justify-center">2</span>
             </button>
-
-            {/* Mobile menu button */}
             <button
-              className="lg:hidden p-2 hover:bg-gray-100 rounded-full transition-colors"
+              className="lg:hidden p-2 hover:bg-white/10 rounded-full transition-colors"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
-              <div className="w-6 h-5 flex flex-col justify-between">
-                <span
-                  className={`w-full h-0.5 bg-gray-800 transition-transform ${
-                    mobileMenuOpen ? "rotate-45 translate-y-2" : ""
-                  }`}
-                ></span>
-                <span
-                  className={`w-full h-0.5 bg-gray-800 transition-opacity ${
-                    mobileMenuOpen ? "opacity-0" : "opacity-100"
-                  }`}
-                ></span>
-                <span
-                  className={`w-full h-0.5 bg-gray-800 transition-transform ${
-                    mobileMenuOpen ? "-rotate-45 -translate-y-2" : ""
-                  }`}
-                ></span>
-              </div>
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
 
-        {/* Mobile menu */}
-        <div
-          className={`lg:hidden absolute w-full bg-white shadow-lg transition-all duration-300 overflow-hidden ${
-            mobileMenuOpen ? "max-h-96" : "max-h-0"
-          }`}
-        >
-          <div className="container mx-auto px-4 py-4">
-            <nav className="flex flex-col space-y-4">
+        {/* Mobile Menu */}
+        <div className={`lg:hidden absolute w-full bg-[#0d1220]/95 backdrop-blur-xl border-b border-white/5 transition-all duration-300 overflow-hidden ${mobileMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}`}>
+          <div className="container mx-auto px-5 py-5">
+            <nav className="flex flex-col gap-1">
               {[
                 { name: "Products", id: "products" },
                 { name: "Solutions", id: "solutions" },
@@ -214,10 +185,10 @@ export default function Home() {
                 <button
                   key={item.id}
                   onClick={() => scrollToSection(item.id)}
-                  className="text-gray-800 hover:text-[#00c853] py-2 text-left border-b border-gray-100 flex justify-between items-center"
+                  className="text-white/70 hover:text-white py-3 text-left border-b border-white/5 flex justify-between items-center hover:bg-white/5 px-2 rounded-lg transition-colors"
                 >
                   {item.name}
-                  <ChevronRight className="w-4 h-4" />
+                  <ChevronRight className="w-4 h-4 text-[#00e676]" />
                 </button>
               ))}
             </nav>
@@ -225,126 +196,133 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Hero Section */}
+      {/* ── HERO SECTION ── */}
       <section
         id="hero"
         ref={heroRef}
-        className="min-h-screen flex items-center justify-center relative"        style={{
-          backgroundImage: "url('https://cdn.prod.website-files.com/63053218ec1dde0a99cc4fee/66bb45f7ad7e0b19b50c7a07_Cost%20and%20Benefits%20of%20Solar-Powered%20EV%20Charging%20Stations.jpg')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
+        className="min-h-screen flex items-center justify-center relative overflow-hidden"
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/30 z-10"></div>
+        {/* Animated BG */}
+        <motion.div style={{ y: heroParallax }} className="absolute inset-0">
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: "url('/sparktech-hero.png')",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          />
+        </motion.div>
+        <div className="absolute inset-0 bg-gradient-to-b from-[#080c14]/80 via-[#080c14]/50 to-[#080c14] z-10" />
 
-        <motion.div 
+        {/* Glowing orbs */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#00e676]/10 rounded-full blur-3xl z-10 animate-pulse" />
+        <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-[#0070f3]/10 rounded-full blur-3xl z-10" />
+
+        <motion.div
           initial="hidden"
           animate="visible"
           variants={staggerContainer}
-          className="container mx-auto px-4 sm:px-6 relative z-20 text-center lg:text-left lg:grid lg:grid-cols-2 lg:gap-12 lg:items-center"
+          className="container mx-auto px-5 sm:px-8 relative z-20 text-center lg:text-left lg:grid lg:grid-cols-2 lg:gap-16 lg:items-center"
         >
           <div>
-            <motion.div variants={fadeInUp} className="inline-flex items-center bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full text-white/90 text-sm mb-6 border border-white/20">
-              <span className="w-2 h-2 bg-[#00c853] rounded-full mr-2 animate-pulse"></span>
+            <motion.div variants={fadeInUp} className="inline-flex items-center bg-white/5 backdrop-blur-sm px-4 py-2 rounded-full text-white/80 text-sm mb-7 border border-white/10 gap-2">
+              <Sparkles className="w-3.5 h-3.5 text-[#00e676]" />
               Revolutionizing EV Charging Technology
+              <span className="w-1.5 h-1.5 bg-[#00e676] rounded-full animate-pulse" />
             </motion.div>
-            
-            <motion.h1 variants={fadeInUp} className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 leading-tight text-white">
+
+            <motion.h1
+              variants={fadeInUp}
+              className="text-5xl sm:text-6xl md:text-7xl font-black mb-6 leading-[1.05] tracking-tight"
+              style={{ fontFamily: "var(--font-space-grotesk), sans-serif" }}
+            >
               The Future of
-              <span className="text-[#00c853] block mt-2">Electric Mobility</span>
+              <span className="block bg-gradient-to-r from-[#00e676] via-[#69f0ae] to-[#00b248] bg-clip-text text-transparent mt-1">
+                Electric Mobility
+              </span>
             </motion.h1>
-            
-            <motion.p variants={fadeInUp} className="text-lg text-white/80 max-w-2xl mx-auto lg:mx-0 mb-8">
-              Pioneering smart charging solutions for a sustainable future. Join us in building the next generation of
-              EV infrastructure with cutting-edge technology.
+
+            <motion.p variants={fadeInUp} className="text-lg text-white/60 max-w-xl mx-auto lg:mx-0 mb-9 leading-relaxed">
+              Pioneering smart charging solutions for a sustainable future. Join us in building the next
+              generation of EV infrastructure with <span className="text-white/90 font-medium">AI-powered technology</span>.
             </motion.p>
-            
+
             <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
               <Link
                 href="/home"
-                className="bg-[#00c853] text-white px-8 py-4 rounded-full text-base font-medium hover:bg-[#00b048] transition-colors shadow-lg hover:shadow-xl hover:shadow-[#00c853]/20 w-full sm:w-auto flex items-center justify-center gap-2 group"
+                className="group relative bg-gradient-to-r from-[#00e676] to-[#00b248] text-[#080c14] px-8 py-4 rounded-full text-base font-bold hover:shadow-2xl hover:shadow-[#00e676]/30 transition-all duration-300 hover:-translate-y-1 w-full sm:w-auto flex items-center justify-center gap-2"
               >
                 Charge Your Vehicle
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </Link>
-              <Link
-                href="#solutions"
-                className="border-2 border-white/30 text-white px-8 py-[0.9rem] rounded-full text-base font-medium hover:bg-white/10 transition-colors w-full sm:w-auto backdrop-blur-sm"
-                onClick={(e) => {
-                  e.preventDefault()
-                  scrollToSection("solutions")
-                }}
+              <button
+                onClick={() => scrollToSection("solutions")}
+                className="border border-white/20 text-white px-8 py-4 rounded-full text-base font-medium hover:bg-white/10 hover:border-white/40 transition-all duration-300 w-full sm:w-auto backdrop-blur-sm"
               >
                 Our Technology
-              </Link>
-            </motion.div>
-            
-            <motion.div 
-              variants={fadeInUp}
-              className="mt-12 hidden md:flex items-center gap-6"
-            >
-              <button className="flex items-center gap-3 text-white/80 hover:text-white transition-colors group">
-                <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20 group-hover:bg-[#00c853] transition-colors">
-                  <Play className="w-5 h-5 text-white fill-white" />
-                </div>
-                <span>Watch Demo</span>
               </button>
-              
-              <div className="h-8 w-px bg-white/20"></div>
-              
-              <div className="flex -space-x-2">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-gray-300 overflow-hidden">
-                    <Image 
-                      src={`/avatar-${i}.jpg`} 
-                      width={32} 
-                      height={32} 
-                      alt="User avatar" 
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                ))}
-                <div className="w-8 h-8 rounded-full border-2 border-white bg-[#00c853] flex items-center justify-center text-xs text-white">
-                  +2k
+            </motion.div>
+
+            <motion.div variants={fadeInUp} className="mt-12 hidden md:flex items-center gap-6">
+              <button className="flex items-center gap-3 text-white/70 hover:text-white transition-colors group">
+                <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/15 group-hover:bg-[#00e676]/20 group-hover:border-[#00e676]/40 transition-all duration-300">
+                  <Play className="w-4 h-4 text-white fill-white ml-0.5" />
                 </div>
+                <span className="text-sm">Watch Demo</span>
+              </button>
+              <div className="h-6 w-px bg-white/15" />
+              <div className="flex items-center gap-3">
+                <div className="flex -space-x-3">
+                  {[
+                    "/team/Abu Wakas Siddique.jpeg",
+                    "/team/Khan Numan abdul sami.jpeg",
+                    "/team/Khana Saad Abdulaziz.jpeg",
+                    "/team/Khana zeeshan Abrar.jpeg",
+                  ].map((src, i) => (
+                    <div key={i} className="w-9 h-9 rounded-full border-2 border-[#080c14] overflow-hidden bg-gray-700">
+                      <Image src={src} width={36} height={36} alt="Team member" className="w-full h-full object-cover" />
+                    </div>
+                  ))}
+                </div>
+                <span className="text-white/60 text-sm">Trusted by <span className="text-white font-semibold">2,000+</span> EV owners</span>
               </div>
-              <span className="text-white/80 text-sm">Trusted by thousands of EV owners</span>
             </motion.div>
           </div>
 
-          <motion.div 
-            variants={fadeIn}
-            className="hidden lg:block relative h-[600px] mt-12 lg:mt-0"
-          >
-            <div className="absolute inset-0 bg-[#00c853]/10 rounded-2xl transform rotate-3"></div>
-            <div className="absolute inset-0 bg-white/10 backdrop-blur-md rounded-2xl shadow-xl overflow-hidden transform -rotate-3 transition-transform hover:rotate-0 duration-500 border border-white/20">
-              <div className="w-full h-full relative">
-                <Image
-                  src="https://mgmotor.scene7.com/is/image/mgmotor/evpedia-bn-0060?$mg-rgb-4k-image-responsive$"
-                  alt="Smart EV Charging"
-                  fill
-                  className="object-cover object-center"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                <div className="absolute bottom-0 left-0 right-0 p-8">
-                  <div className="bg-white/10 backdrop-blur-md p-6 rounded-xl border border-white/20">
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <h3 className="text-white font-bold">Smart Charging</h3>
-                        <p className="text-white/70 text-sm">Optimized for your vehicle</p>
-                      </div>
-                      <div className="w-12 h-12 rounded-full bg-[#00c853] flex items-center justify-center">
-                        <Zap className="w-6 h-6 text-white" />
-                      </div>
+          <motion.div variants={fadeIn} className="hidden lg:block relative h-[600px]">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#00e676]/20 to-[#0070f3]/10 rounded-3xl transform rotate-2 blur-sm" />
+            <div className="absolute inset-2 bg-white/5 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden border border-white/10 transform -rotate-1 hover:rotate-0 transition-transform duration-700">
+              <Image
+                src="https://mgmotor.scene7.com/is/image/mgmotor/evpedia-bn-0060?$mg-rgb-4k-image-responsive$"
+                alt="Smart EV Charging"
+                fill
+                className="object-cover object-center"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#080c14]/80 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-7">
+                <div className="bg-white/10 backdrop-blur-xl p-5 rounded-2xl border border-white/15">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <p className="text-xs text-white/50 mb-0.5">SparkTech AI</p>
+                      <h3 className="text-white font-bold">Smart Charging</h3>
                     </div>
-                    <div className="space-y-3">
-                      <div className="bg-white/10 rounded-full h-2 overflow-hidden">
-                        <div className="bg-[#00c853] h-full w-[75%]"></div>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-white/70">75% Charged</span>
-                        <span className="text-white font-medium">45 min remaining</span>
-                      </div>
+                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#00e676] to-[#00b248] flex items-center justify-center">
+                      <Zap className="w-5 h-5 text-[#080c14]" strokeWidth={2.5} />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="bg-white/10 rounded-full h-2 overflow-hidden">
+                      <motion.div
+                        initial={{ width: "0%" }}
+                        animate={{ width: "75%" }}
+                        transition={{ duration: 2, delay: 0.5, ease: "easeOut" }}
+                        className="bg-gradient-to-r from-[#00e676] to-[#00b248] h-full rounded-full"
+                      />
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-white/50">75% Charged</span>
+                      <span className="text-[#00e676] font-semibold">45 min remaining</span>
                     </div>
                   </div>
                 </div>
@@ -352,450 +330,409 @@ export default function Home() {
             </div>
           </motion.div>
         </motion.div>
-        
+
         <div className="absolute bottom-10 left-0 right-0 z-20 flex justify-center">
-          <button 
-            onClick={() => scrollToSection("products")}
-            className="animate-bounce bg-white/10 backdrop-blur-sm p-3 rounded-full border border-white/20"
-          >
-            <ChevronDown className="w-5 h-5 text-white" />
+          <button onClick={() => scrollToSection("products")} className="animate-bounce bg-white/5 hover:bg-white/10 border border-white/10 p-3 rounded-full transition-colors backdrop-blur-sm">
+            <ChevronDown className="w-5 h-5 text-white/60" />
           </button>
         </div>
       </section>
 
-      {/* Products Section */}
+      {/* ── PRODUCTS SECTION ── */}
       <section
         id="products"
         ref={productsRef}
-        className="py-24 bg-white opacity-0 transform translate-y-10 transition-all duration-1000"
+        className="py-28 bg-[#080c14] opacity-0 transform translate-y-10 transition-all duration-1000 relative"
       >
-        <div className="container mx-auto px-4 sm:px-6">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center bg-[#00c853]/10 px-4 py-2 rounded-full text-[#00c853] text-sm mb-4">
-              <span className="w-2 h-2 bg-[#00c853] rounded-full mr-2"></span>
+        {/* Grid pattern */}
+        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "radial-gradient(circle, #ffffff 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
+
+        <div className="container mx-auto px-5 sm:px-8 relative">
+          <div className="text-center mb-20">
+            <div className="inline-flex items-center bg-[#00e676]/10 border border-[#00e676]/20 px-4 py-2 rounded-full text-[#00e676] text-xs font-semibold mb-5 gap-2 tracking-wider uppercase">
+              <Cpu className="w-3.5 h-3.5" />
               Innovative Solutions
             </div>
-            <h2 className="text-3xl md:text-5xl font-bold mt-2">Smart Charging Ecosystem</h2>
-            <div className="w-20 h-1 bg-[#00c853] mx-auto mt-6 rounded-full"></div>
-            <p className="text-gray-600 max-w-2xl mx-auto mt-6">
-              Our comprehensive range of charging solutions designed to meet the needs of individual EV owners, businesses, and charging networks.
+            <h2 className="text-4xl md:text-6xl font-black mt-2 tracking-tight" style={{ fontFamily: "var(--font-space-grotesk), sans-serif" }}>
+              Smart Charging{" "}
+              <span className="bg-gradient-to-r from-[#00e676] to-[#69f0ae] bg-clip-text text-transparent">Ecosystem</span>
+            </h2>
+            <div className="w-16 h-1 bg-gradient-to-r from-[#00e676] to-[#00b248] mx-auto mt-7 rounded-full" />
+            <p className="text-white/50 max-w-2xl mx-auto mt-6 text-base leading-relaxed">
+              Our comprehensive range of charging solutions designed to meet every need — from individual EV owners to enterprise networks.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-7">
             {[
               {
                 title: "Home Smart Hub",
                 description: "Intelligent residential charging with dynamic load balancing and solar integration",
                 image: "https://m.media-amazon.com/images/I/61U2CznrhSL._AC_UF1000,1000_QL80_.jpg",
                 features: ["Smart scheduling", "Solar integration", "Mobile control", "Energy insights"],
-                badge: "Best Seller"
+                badge: "Best Seller",
+                badgeColor: "from-[#00e676] to-[#00b248]",
               },
               {
                 title: "Commercial Station",
                 description: "Enterprise-grade charging infrastructure for businesses and public spaces",
                 image: "https://cdn.shopify.com/s/files/1/0213/7895/7412/files/DALL_E_2024-09-24_15.16.00_-_A_composite_image_focused_on_EV_charger_stations._The_scene_includes_a_modern_EV_charging_station_with_multiple_charging_units_connected_to_electric.webp?v=1727171177",
                 features: ["Fleet management", "Load distribution", "Payment system", "24/7 support"],
-                badge: "New"
+                badge: "New",
+                badgeColor: "from-[#0070f3] to-[#0050d0]",
               },
               {
                 title: "Network Control",
                 description: "Advanced management platform for charging networks with real-time analytics",
                 image: "https://chargedevs.com/wp-content/uploads/2023/07/HIA-WM-LNCA-EVC1-48-SV1-17-copy.jpg",
                 features: ["Real-time monitoring", "Predictive maintenance", "Usage analytics", "Remote control"],
-                badge: null
+                badge: null,
+                badgeColor: "",
               },
             ].map((product, index) => (
-              <div
+              <motion.div
                 key={index}
-                className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group border border-gray-100 hover:border-[#00c853]/30"
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: index * 0.15, ease: [0.22, 1, 0.36, 1] }}
+                className="group bg-[#0d1220] rounded-2xl overflow-hidden border border-white/5 hover:border-[#00e676]/30 transition-all duration-500 hover:shadow-2xl hover:shadow-[#00e676]/10 hover:-translate-y-2"
               >
-                <div className="h-64 relative overflow-hidden">
+                <div className="h-60 relative overflow-hidden">
                   <Image
-                    src={product.image || ""}
+                    src={product.image}
                     alt={product.title}
                     fill
                     className="object-cover object-center transition-transform duration-700 group-hover:scale-110"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0d1220] via-transparent to-transparent" />
                   {product.badge && (
-                    <div className="absolute top-4 right-4 bg-[#00c853] text-white text-xs font-bold px-3 py-1 rounded-full">
+                    <div className={`absolute top-4 right-4 bg-gradient-to-r ${product.badgeColor} text-white text-[10px] font-bold px-3 py-1.5 rounded-full shadow-lg tracking-wide`}>
                       {product.badge}
                     </div>
                   )}
                 </div>
-                <div className="p-8">
-                  <h3 className="text-2xl font-bold mb-3">{product.title}</h3>
-                  <p className="text-gray-600 mb-6">{product.description}</p>
-
-                  <ul className="mb-8 space-y-3">
+                <div className="p-7">
+                  <h3 className="text-xl font-bold mb-2 text-white" style={{ fontFamily: "var(--font-space-grotesk), sans-serif" }}>{product.title}</h3>
+                  <p className="text-white/50 mb-6 text-sm leading-relaxed">{product.description}</p>
+                  <ul className="mb-7 space-y-2.5">
                     {product.features.map((feature, idx) => (
-                      <li key={idx} className="text-sm text-gray-600 flex items-center">
-                        <div className="w-5 h-5 rounded-full bg-[#00c853]/10 flex items-center justify-center mr-3">
-                          <span className="w-2 h-2 bg-[#00c853] rounded-full"></span>
+                      <li key={idx} className="text-sm text-white/60 flex items-center gap-2.5">
+                        <div className="w-4 h-4 rounded-full bg-[#00e676]/15 flex items-center justify-center flex-shrink-0">
+                          <span className="w-1.5 h-1.5 bg-[#00e676] rounded-full" />
                         </div>
                         {feature}
                       </li>
                     ))}
                   </ul>
-
-                  <Link 
-                    href="#" 
-                    className="inline-flex items-center text-[#00c853] hover:text-[#00b048] font-medium group"
+                  <Link
+                    href="#"
+                    className="inline-flex items-center gap-2 text-[#00e676] hover:text-white font-semibold text-sm group/link transition-colors duration-200"
                   >
-                    <span>Discover more</span>
-                    <div className="ml-2 w-6 h-6 rounded-full border border-[#00c853] flex items-center justify-center group-hover:bg-[#00c853] transition-colors">
-                      <ArrowUpRight className="w-3 h-3 text-[#00c853] group-hover:text-white transition-colors" />
+                    Discover more
+                    <div className="w-7 h-7 rounded-full border border-[#00e676]/40 flex items-center justify-center group-hover/link:bg-[#00e676] group-hover/link:border-[#00e676] transition-all duration-200">
+                      <ArrowUpRight className="w-3.5 h-3.5 text-[#00e676] group-hover/link:text-[#080c14] transition-colors" />
                     </div>
                   </Link>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Innovation Stats Section */}
+      {/* ── STATS SECTION ── */}
       <section
         id="stats"
         ref={statsRef}
-        className="py-24 bg-[#f9fafb] opacity-0 transform translate-y-10 transition-all duration-1000"
+        className="py-28 opacity-0 transform translate-y-10 transition-all duration-1000 relative overflow-hidden"
+        style={{ background: "linear-gradient(135deg, #0a0f1e 0%, #0d1a10 50%, #080c14 100%)" }}
       >
-        <div className="container mx-auto px-4 sm:px-6">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center bg-[#00c853]/10 px-4 py-2 rounded-full text-[#00c853] text-sm mb-4">
-              <span className="w-2 h-2 bg-[#00c853] rounded-full mr-2"></span>
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-[#00e676]/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
+          <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-[#0070f3]/5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
+        </div>
+
+        <div className="container mx-auto px-5 sm:px-8 relative">
+          <div className="text-center mb-20">
+            <div className="inline-flex items-center bg-[#00e676]/10 border border-[#00e676]/20 px-4 py-2 rounded-full text-[#00e676] text-xs font-semibold mb-5 gap-2 tracking-wider uppercase">
+              <Battery className="w-3.5 h-3.5" />
               Our Impact
             </div>
-            <h2 className="text-3xl md:text-5xl font-bold mt-2">Driving Sustainable Change</h2>
-            <div className="w-20 h-1 bg-[#00c853] mx-auto mt-6 rounded-full"></div>
+            <h2 className="text-4xl md:text-6xl font-black tracking-tight" style={{ fontFamily: "var(--font-space-grotesk), sans-serif" }}>
+              Driving Sustainable{" "}
+              <span className="bg-gradient-to-r from-[#00e676] to-[#69f0ae] bg-clip-text text-transparent">Change</span>
+            </h2>
+            <div className="w-16 h-1 bg-gradient-to-r from-[#00e676] to-[#00b248] mx-auto mt-7 rounded-full" />
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              {
-                icon: <Leaf className="w-10 h-10 text-[#00c853]" />,
-                value: "100%",
-                label: "Green Energy",
-                description: "All our charging stations powered by renewable energy"
-              },
-              {
-                icon: <Globe className="w-10 h-10 text-[#00c853]" />,
-                value: "12+",
-                label: "Countries",
-                description: "Global presence across major markets"
-              },
-              {
-                icon: <Timer className="w-10 h-10 text-[#00c853]" />,
-                value: "24/7",
-                label: "Support",
-                description: "Round-the-clock customer assistance"
-              },
-              {
-                icon: <Shield className="w-10 h-10 text-[#00c853]" />,
-                value: "ISO",
-                label: "Certified",
-                description: "Meeting international quality standards"
-              },
+              { icon: <Leaf className="w-8 h-8 text-[#00e676]" />, value: "100%", label: "Green Energy", description: "All stations powered by renewable energy" },
+              { icon: <Globe className="w-8 h-8 text-[#00e676]" />, value: "12+", label: "Countries", description: "Global presence across major markets" },
+              { icon: <Timer className="w-8 h-8 text-[#00e676]" />, value: "24/7", label: "Support", description: "Round-the-clock customer assistance" },
+              { icon: <Shield className="w-8 h-8 text-[#00e676]" />, value: "ISO", label: "Certified", description: "Meeting international quality standards" },
             ].map((stat, index) => (
-              <div
+              <motion.div
                 key={index}
-                className="bg-white p-8 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col items-center text-center group hover:border-[#00c853]/30 border border-transparent"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="group bg-white/5 backdrop-blur-sm rounded-2xl p-7 border border-white/8 hover:border-[#00e676]/30 transition-all duration-400 hover:bg-white/8 text-center hover:-translate-y-1"
               >
-                <div className="bg-[#00c853]/10 p-4 rounded-full mb-6 group-hover:bg-[#00c853]/20 transition-colors">
+                <div className="bg-[#00e676]/10 w-16 h-16 rounded-2xl flex items-center justify-center mb-5 mx-auto group-hover:bg-[#00e676]/20 transition-colors duration-300">
                   {stat.icon}
                 </div>
-                <h3 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">{stat.value}</h3>
-                <p className="text-[#00c853] font-semibold mb-3">{stat.label}</p>
-                <p className="text-sm text-gray-500">{stat.description}</p>
-              </div>
+                <h3 className="text-4xl font-black text-white mb-1" style={{ fontFamily: "var(--font-space-grotesk), sans-serif" }}>{stat.value}</h3>
+                <p className="text-[#00e676] font-semibold text-sm mb-2">{stat.label}</p>
+                <p className="text-white/40 text-xs leading-relaxed">{stat.description}</p>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Technology Section */}
+      {/* ── SOLUTIONS / TECHNOLOGY SECTION ── */}
       <section
-  id="solutions"
-  ref={solutionsRef}
-  className="py-16 bg-white opacity-0 transform translate-y-10 transition-all duration-1000"
->
-  <div className="container mx-auto px-4 sm:px-6">
-    <div className="flex flex-col-reverse md:flex-row items-center gap-8 md:gap-16">
-      
-      {/* Text Column */}
-      <div className="w-full md:w-1/2 order-2 md:order-1 text-center md:text-left">
-        <div className="inline-flex items-center bg-[#00c853]/10 px-4 py-2 rounded-full text-[#00c853] text-sm mb-4 mx-auto md:mx-0">
-          <span className="w-2 h-2 bg-[#00c853] rounded-full mr-2"></span>
-          Our Technology
-        </div>
-        <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold mt-2 mb-4 sm:mb-6">
-          Next-Gen Charging Platform
-        </h2>
-        <p className="text-gray-600 mb-6 sm:mb-8 text-base sm:text-lg max-w-screen-sm mx-auto md:mx-0">
-          Our innovative charging platform combines cutting-edge hardware with intelligent software to deliver an unmatched charging experience. Built for the future of mobility with AI-powered optimization.
-        </p>
+        id="solutions"
+        ref={solutionsRef}
+        className="py-28 bg-[#080c14] opacity-0 transform translate-y-10 transition-all duration-1000"
+      >
+        <div className="container mx-auto px-5 sm:px-8">
+          <div className="flex flex-col-reverse md:flex-row items-center gap-12 md:gap-20">
+            <div className="w-full md:w-1/2 text-center md:text-left">
+              <div className="inline-flex items-center bg-[#00e676]/10 border border-[#00e676]/20 px-4 py-2 rounded-full text-[#00e676] text-xs font-semibold mb-6 gap-2 tracking-wider uppercase">
+                <Settings className="w-3.5 h-3.5" />
+                Our Technology
+              </div>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight mb-5" style={{ fontFamily: "var(--font-space-grotesk), sans-serif" }}>
+                Next-Gen{" "}
+                <span className="bg-gradient-to-r from-[#00e676] to-[#69f0ae] bg-clip-text text-transparent">Charging Platform</span>
+              </h2>
+              <p className="text-white/50 mb-9 text-base leading-relaxed max-w-md mx-auto md:mx-0">
+                Our innovative platform combines cutting-edge hardware with intelligent software to deliver an unmatched charging experience — built on AI-powered optimization.
+              </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 mb-8">
-          {[
-            {
-              icon: <Settings className="w-6 h-6" />,
-              title: "Smart Optimization",
-              description: "AI-powered charging algorithms that adapt to your usage patterns",
-            },
-            {
-              icon: <Smartphone className="w-6 h-6" />,
-              title: "Mobile Integration",
-              description: "Seamless app control for monitoring and managing your charging",
-            },
-            {
-              icon: <Cloud className="w-6 h-6" />,
-              title: "Cloud Platform",
-              description: "Real-time monitoring and updates via secure cloud infrastructure",
-            },
-            {
-              icon: <LineChart className="w-6 h-6" />,
-              title: "Analytics",
-              description: "Advanced usage insights and optimization recommendations",
-            },
-          ].map((feature, index) => (
-            <div key={index} className="flex items-start group">
-              <div className="flex-shrink-0">
-                <div className="bg-[#00c853]/10 rounded-xl p-3 sm:p-4 mr-3 group-hover:bg-[#00c853]/20 transition-colors">
-                  <div className="text-[#00c853]">{feature.icon}</div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-9">
+                {[
+                  { icon: <Settings className="w-5 h-5" />, title: "Smart Optimization", description: "AI-powered algorithms adapting to your usage" },
+                  { icon: <Smartphone className="w-5 h-5" />, title: "Mobile Integration", description: "Seamless app control and live monitoring" },
+                  { icon: <Cloud className="w-5 h-5" />, title: "Cloud Platform", description: "Real-time updates via secure cloud infrastructure" },
+                  { icon: <LineChart className="w-5 h-5" />, title: "Analytics", description: "Advanced usage insights and AI recommendations" },
+                ].map((feature, index) => (
+                  <div key={index} className="flex items-start gap-4 group">
+                    <div className="flex-shrink-0 bg-[#00e676]/10 rounded-xl p-3 group-hover:bg-[#00e676]/20 transition-colors border border-[#00e676]/10">
+                      <div className="text-[#00e676]">{feature.icon}</div>
+                    </div>
+                    <div>
+                      <h3 className="font-bold mb-1 text-white text-sm">{feature.title}</h3>
+                      <p className="text-white/40 text-xs leading-relaxed">{feature.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <Link
+                href="#"
+                className="inline-flex items-center gap-2 text-[#00e676] hover:text-white font-semibold text-sm group transition-colors duration-200"
+              >
+                Explore our technology
+                <div className="w-7 h-7 rounded-full border border-[#00e676]/40 flex items-center justify-center group-hover:bg-[#00e676] group-hover:border-[#00e676] transition-all duration-200">
+                  <ArrowUpRight className="w-3.5 h-3.5 text-[#00e676] group-hover:text-[#080c14] transition-colors" />
+                </div>
+              </Link>
+            </div>
+
+            <div className="w-full md:w-1/2 relative">
+              <div className="relative h-72 sm:h-96 md:h-[560px]">
+                <div className="absolute -inset-4 bg-gradient-to-br from-[#00e676]/10 to-[#0070f3]/5 rounded-3xl transform rotate-2" />
+                <div className="absolute inset-0 overflow-hidden rounded-2xl shadow-2xl shadow-black/50 border border-white/10">
+                  <Image
+                    src="https://thumbs.dreamstime.com/b/modern-electric-cars-charge-futuristic-charging-stations-wind-turbines-solar-panels-renewable-energy-generation-338779666.jpg"
+                    alt="Advanced Charging Technology"
+                    fill
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#00e676]/15 to-transparent mix-blend-overlay" />
+                </div>
+                <div className="absolute -bottom-5 -right-5 bg-[#0d1220]/95 backdrop-blur-xl rounded-2xl shadow-xl p-5 border border-white/10 max-w-[220px]">
+                  <div className="flex items-center mb-3 gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-[#00e676]/15 flex items-center justify-center">
+                      <Zap className="w-4 h-4 text-[#00e676]" />
+                    </div>
+                    <h4 className="font-bold text-white text-sm">Innovation First</h4>
+                  </div>
+                  <p className="text-white/40 text-xs leading-relaxed">
+                    Pioneering the future with continuous R&D in EV charging
+                  </p>
                 </div>
               </div>
-              <div>
-                <h3 className="text-lg sm:text-xl font-bold mb-1 sm:mb-2">{feature.title}</h3>
-                <p className="text-gray-600 text-sm sm:text-base">{feature.description}</p>
-              </div>
             </div>
-          ))}
-        </div>
-
-        <div className="flex justify-center md:justify-start">
-          <Link
-            href="#"
-            className="inline-flex items-center text-[#00c853] hover:text-[#00b048] font-medium group"
-          >
-            <span>Explore our technology</span>
-            <div className="ml-2 w-6 h-6 rounded-full border border-[#00c853] flex items-center justify-center group-hover:bg-[#00c853] transition-colors">
-              <ArrowUpRight className="w-3 h-3 text-[#00c853] group-hover:text-white transition-colors" />
-            </div>
-          </Link>
-        </div>
-      </div>
-
-      {/* Image Column */}
-      <div className="w-full md:w-1/2 relative order-1 md:order-2">
-        <div className="relative h-64 sm:h-80 md:h-[550px]">
-          <div className="absolute -inset-3 sm:-inset-4 bg-[#00c853]/5 rounded-2xl transform rotate-3"></div>
-          <div className="absolute inset-0 overflow-hidden rounded-2xl shadow-xl">
-            <Image
-              src="https://thumbs.dreamstime.com/b/modern-electric-cars-charge-futuristic-charging-stations-wind-turbines-solar-panels-renewable-energy-generation-338779666.jpg"
-              alt="Advanced Charging Technology"
-              fill
-              className="object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#00c853]/30 to-transparent mix-blend-overlay"></div>
           </div>
         </div>
+      </section>
 
-        <div className="absolute bottom-0 right-0 translate-x-1/4 translate-y-1/4 bg-white rounded-xl shadow-lg p-4 sm:p-6 max-w-xs mx-auto md:mx-0">
-          <div className="flex items-center mb-2 sm:mb-4">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#00c853]/10 flex items-center justify-center mr-2 sm:mr-3">
-              <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-[#00c853]" />
-            </div>
-            <h4 className="text-base sm:text-lg font-bold">Innovation First</h4>
-          </div>
-          <p className="text-gray-600 text-sm sm:text-base">
-            Pioneering the future of EV charging technology with continuous research and development
-          </p>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-      {/* Team Section */}
+      {/* ── TEAM SECTION ── */}
       <section
         id="team"
         ref={teamRef}
-        className="py-24 bg-[#f9fafb] opacity-0 transform translate-y-10 transition-all duration-1000"
+        className="py-28 opacity-0 transform translate-y-10 transition-all duration-1000 relative overflow-hidden"
+        style={{ background: "linear-gradient(180deg, #080c14 0%, #0a0f1e 50%, #080c14 100%)" }}
       >
-        <div className="container mx-auto px-4 sm:px-6">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center bg-[#00c853]/10 px-4 py-2 rounded-full text-[#00c853] text-sm mb-4">
-              <span className="w-2 h-2 bg-[#00c853] rounded-full mr-2"></span>
+        <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: "radial-gradient(circle, #00e676 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
+
+        <div className="container mx-auto px-5 sm:px-8 relative">
+          <div className="text-center mb-20">
+            <div className="inline-flex items-center bg-[#00e676]/10 border border-[#00e676]/20 px-4 py-2 rounded-full text-[#00e676] text-xs font-semibold mb-5 gap-2 tracking-wider uppercase">
+              <Sparkles className="w-3.5 h-3.5" />
               Our Team
             </div>
-            <h2 className="text-3xl md:text-5xl font-bold mt-2">Meet Our Experts</h2>
-            <div className="w-20 h-1 bg-[#00c853] mx-auto mt-6 rounded-full"></div>
-            <p className="text-gray-600 max-w-2xl mx-auto mt-6">
-              Our talented team of professionals is dedicated to revolutionizing the EV charging industry with
-              innovative solutions and sustainable technology.
+            <h2 className="text-4xl md:text-6xl font-black tracking-tight" style={{ fontFamily: "var(--font-space-grotesk), sans-serif" }}>
+              Meet the{" "}
+              <span className="bg-gradient-to-r from-[#00e676] to-[#69f0ae] bg-clip-text text-transparent">Visionaries</span>
+            </h2>
+            <div className="w-16 h-1 bg-gradient-to-r from-[#00e676] to-[#00b248] mx-auto mt-7 rounded-full" />
+            <p className="text-white/50 max-w-2xl mx-auto mt-6 leading-relaxed">
+              Our talented professionals are dedicated to revolutionizing the EV charging industry with innovative solutions and sustainable technology.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              {
-                name: "Maaz Arshad Khan",
-                role: "Electrical Engineering Lead",
-                image: "/30.jpg",
-                social: {
-                  linkedin: "#",
-                  twitter: "#",
-                  email: "mailto:maaz@example.com",
-                },
-              },
-              {
-                name: "Zaid Naim Baig Mirza",
-                role: "Hardware Development Specialist",
-                image: "/28.jpg",
-                social: {
-                  linkedin: "#",
-                  twitter: "#",
-                  email: "mailto:zaid@example.com",
-                },
-              },
-              {
-                name: "Mohd Faiz Khan",
-                role: "Software Integration Expert",
-                image: "/29.jpg",
-                social: {
-                  linkedin: "#",
-                  twitter: "#",
-                  email: "mailto:faiz@example.com",
-                },
-              },
-              {
-                name: "Khan Junaid Sadullah",
-                role: "Product Innovation Director",
-                image: "/27.jpg",
-                social: {
-                  linkedin: "#",
-                  twitter: "#",
-                  email: "mailto:junaid@example.com",
-                },
-              },
-            ].map((member, index) => (
-              <div
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-7">
+            {teamMembers.map((member, index) => (
+              <motion.div
                 key={index}
-                className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 group"
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.65, delay: index * 0.12, ease: [0.22, 1, 0.36, 1] }}
+                className="group relative bg-[#0d1220] rounded-3xl overflow-hidden border border-white/5 hover:border-[#00e676]/30 transition-all duration-500 hover:shadow-2xl hover:shadow-[#00e676]/10 hover:-translate-y-3"
               >
-                <div className="relative h-72 w-full overflow-hidden">
-                  <div className="w-full h-full relative">
-                    <Image
-                      src={member.image || "/placeholder.svg?height=400&width=300"}
-                      alt={member.name}
-                      fill
-                      className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
-                    />
+                {/* Photo */}
+                <div className="relative h-80 w-full overflow-hidden">
+                  <Image
+                    src={member.image}
+                    alt={member.name}
+                    fill
+                    className="object-cover object-top transition-transform duration-700 group-hover:scale-110"
+                  />
+                  {/* Green top accent */}
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#00e676] to-[#00b248] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  {/* Gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0d1220] via-[#0d1220]/30 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300" />
+                  {/* Social icons (appear on hover) */}
+                  <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-400">
+                    {[
+                      { href: member.social.linkedin, icon: <Linkedin className="w-3.5 h-3.5" />, label: "LinkedIn" },
+                      { href: member.social.twitter, icon: <Twitter className="w-3.5 h-3.5" />, label: "Twitter" },
+                      { href: member.social.email, icon: <Mail className="w-3.5 h-3.5" />, label: "Email" },
+                    ].map((s, i) => (
+                      <a
+                        key={i}
+                        href={s.href}
+                        aria-label={s.label}
+                        className="w-9 h-9 rounded-full bg-[#080c14]/80 backdrop-blur-sm flex items-center justify-center border border-white/10 hover:bg-[#00e676] hover:border-[#00e676] transition-all duration-200 text-white"
+                      >
+                        {s.icon}
+                      </a>
+                    ))}
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </div>
+
+                {/* Info */}
                 <div className="p-6">
-                  <h3 className="text-xl font-bold mb-1">{member.name}</h3>
-                  <p className="text-[#00c853] text-sm mb-4">{member.role}</p>
-                  <div className="flex space-x-3">
-                    <a
-                      href={member.social.linkedin}
-                      className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center hover:bg-[#00c853] hover:text-white transition-colors"
-                      aria-label={`${member.name}'s LinkedIn`}
-                    >
-                      <Linkedin className="w-4 h-4" />
-                    </a>
-                    <a
-                      href={member.social.twitter}
-                      className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center hover:bg-[#00c853] hover:text-white transition-colors"
-                      aria-label={`${member.name}'s Twitter`}
-                    >
-                      <Twitter className="w-4 h-4" />
-                    </a>
-                    <a
-                      href={member.social.email}
-                      className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center hover:bg-[#00c853] hover:text-white transition-colors"
-                      aria-label={`Email ${member.name}`}
-                    >
-                      <Mail className="w-4 h-4" />
-                    </a>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="text-base font-bold text-white mb-1 leading-tight" style={{ fontFamily: "var(--font-space-grotesk), sans-serif" }}>
+                        {member.name}
+                      </h3>
+                      <p className="text-[#00e676] text-xs font-medium">{member.role}</p>
+                    </div>
+                    <div className="w-8 h-8 rounded-lg bg-[#00e676]/10 flex items-center justify-center flex-shrink-0">
+                      <Sparkles className="w-3.5 h-3.5 text-[#00e676]" />
+                    </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Vision Section */}
-      <section id="company" className="py-24 bg-white">
-        <div className="container mx-auto px-4 sm:px-6">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center bg-[#00c853]/10 px-4 py-2 rounded-full text-[#00c853] text-sm mb-4">
-              <span className="w-2 h-2 bg-[#00c853] rounded-full mr-2"></span>
+      {/* ── VISION SECTION ── */}
+      <section id="company" className="py-28 bg-[#080c14]">
+        <div className="container mx-auto px-5 sm:px-8">
+          <div className="text-center mb-20">
+            <div className="inline-flex items-center bg-[#00e676]/10 border border-[#00e676]/20 px-4 py-2 rounded-full text-[#00e676] text-xs font-semibold mb-5 gap-2 tracking-wider uppercase">
+              <Globe className="w-3.5 h-3.5" />
               Our Vision
             </div>
-            <h2 className="text-3xl md:text-5xl font-bold mt-2">Empowering Electric Mobility</h2>
-            <div className="w-20 h-1 bg-[#00c853] mx-auto mt-6 rounded-full"></div>
-            <p className="text-gray-600 max-w-2xl mx-auto mt-6">
+            <h2 className="text-4xl md:text-6xl font-black tracking-tight" style={{ fontFamily: "var(--font-space-grotesk), sans-serif" }}>
+              Empowering{" "}
+              <span className="bg-gradient-to-r from-[#00e676] to-[#69f0ae] bg-clip-text text-transparent">Electric Mobility</span>
+            </h2>
+            <div className="w-16 h-1 bg-gradient-to-r from-[#00e676] to-[#00b248] mx-auto mt-7 rounded-full" />
+            <p className="text-white/50 max-w-2xl mx-auto mt-6 leading-relaxed">
               We&apos;re on a mission to accelerate the world&apos;s transition to sustainable energy through innovative charging solutions.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-7">
             {[
               {
                 title: "Innovation",
-                description:
-                  "Pushing the boundaries of charging technology to create smarter, faster, and more efficient solutions for the future of mobility.",
-                icon: <Settings className="w-8 h-8 text-[#00c853]" />
+                description: "Pushing the boundaries of charging technology to create smarter, faster, and more efficient solutions for the future of mobility.",
+                icon: <Settings className="w-7 h-7 text-[#00e676]" />,
               },
               {
                 title: "Sustainability",
-                description:
-                  "Committed to 100% renewable energy integration and reducing the carbon footprint of transportation worldwide.",
-                icon: <Leaf className="w-8 h-8 text-[#00c853]" />
+                description: "Committed to 100% renewable energy integration and reducing the carbon footprint of transportation worldwide.",
+                icon: <Leaf className="w-7 h-7 text-[#00e676]" />,
               },
               {
                 title: "Accessibility",
-                description: 
-                  "Making electric vehicle charging accessible and convenient for everyone, everywhere, breaking down barriers to EV adoption.",
-                icon: <Globe className="w-8 h-8 text-[#00c853]" />
+                description: "Making electric vehicle charging accessible and convenient for everyone, everywhere, breaking down barriers to EV adoption.",
+                icon: <Globe className="w-7 h-7 text-[#00e676]" />,
               },
             ].map((item, index) => (
-              <div
+              <motion.div
                 key={index}
-                className="bg-[#f9fafb] rounded-xl p-8 shadow-sm hover:shadow-md transition-all duration-300 group hover:border-[#00c853]/30 border border-transparent"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: index * 0.15 }}
+                className="group bg-[#0d1220] rounded-2xl p-9 border border-white/5 hover:border-[#00e676]/25 transition-all duration-500 hover:shadow-xl hover:shadow-[#00e676]/5 hover:-translate-y-1.5"
               >
-                <div className="bg-[#00c853]/10 w-16 h-16 rounded-full flex items-center justify-center mb-6 group-hover:bg-[#00c853]/20 transition-colors">
+                <div className="bg-[#00e676]/10 w-14 h-14 rounded-2xl flex items-center justify-center mb-7 group-hover:bg-[#00e676]/20 transition-colors border border-[#00e676]/10">
                   {item.icon}
                 </div>
-                <h3 className="text-2xl font-bold mb-4">{item.title}</h3>
-                <p className="text-gray-600">{item.description}</p>
-              </div>
+                <h3 className="text-2xl font-bold mb-4 text-white" style={{ fontFamily: "var(--font-space-grotesk), sans-serif" }}>{item.title}</h3>
+                <p className="text-white/50 leading-relaxed text-sm">{item.description}</p>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* ── CTA SECTION ── */}
       <section
         id="contact"
         ref={ctaRef}
-        className="py-24 bg-[#00c853] relative overflow-hidden opacity-0 transform translate-y-10 transition-all duration-1000"
+        className="py-32 relative overflow-hidden opacity-0 transform translate-y-10 transition-all duration-1000"
+        style={{ background: "linear-gradient(135deg, #00271a 0%, #001a30 50%, #00271a 100%)" }}
       >
         <div className="absolute inset-0">
           <Image
-            src="https://cdn.prod.website-files.com/63053218ec1dde0a99cc4fee/66bb45f7ad7e0b19b50c7a07_Cost%20and%20Benefits%20of%20Solar-Powered%20EV%20Charging%20Stations.jpg"
-            alt="EV Charging Background"
+            src="/sparktech-hero.png"
+            alt="Background"
             fill
-            className="object-cover opacity-10"
+            className="object-cover opacity-5"
           />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#00e676]/5 via-transparent to-[#0070f3]/5" />
         </div>
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#00e676]/8 rounded-full blur-3xl" />
 
-        <div className="container mx-auto px-4 sm:px-6 text-center relative z-10">
+        <div className="container mx-auto px-5 sm:px-8 text-center relative z-10">
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -803,59 +740,71 @@ export default function Home() {
             variants={staggerContainer}
             className="max-w-3xl mx-auto"
           >
-            <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-bold text-white mb-6">
-              Join the Electric Revolution
+            <motion.div variants={fadeInUp} className="inline-flex items-center bg-white/5 border border-white/10 px-4 py-2 rounded-full text-white/70 text-xs font-semibold mb-7 gap-2 tracking-wider uppercase">
+              <Zap className="w-3.5 h-3.5 text-[#00e676]" />
+              Join the Revolution
+            </motion.div>
+            <motion.h2
+              variants={fadeInUp}
+              className="text-4xl md:text-6xl font-black text-white mb-6 leading-tight tracking-tight"
+              style={{ fontFamily: "var(--font-space-grotesk), sans-serif" }}
+            >
+              Power the Future with{" "}
+              <span className="bg-gradient-to-r from-[#00e676] to-[#69f0ae] bg-clip-text text-transparent">SparkTech</span>
             </motion.h2>
-            <motion.p variants={fadeInUp} className="text-white/90 text-lg mb-10">
+            <motion.p variants={fadeInUp} className="text-white/50 text-lg mb-11 leading-relaxed">
               Be part of the future of sustainable transportation. Let&apos;s build the charging infrastructure of tomorrow, together.
             </motion.p>
             <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
                 href="/contact"
-                className="bg-white text-[#00c853] px-8 py-4 rounded-full text-base font-medium hover:bg-gray-50 transition-colors shadow-lg hover:shadow-xl hover:shadow-black/10 flex items-center gap-2 group w-full sm:w-auto justify-center"
+                className="group bg-gradient-to-r from-[#00e676] to-[#00b248] text-[#080c14] px-9 py-4.5 rounded-full text-base font-bold hover:shadow-2xl hover:shadow-[#00e676]/30 transition-all duration-300 hover:-translate-y-1 flex items-center gap-2 w-full sm:w-auto justify-center"
+                style={{ paddingTop: "1.1rem", paddingBottom: "1.1rem" }}
               >
                 Partner with Us
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </Link>
               <Link
-                href="/demo"
-                className="bg-transparent text-white border-2 border-white px-8 py-[0.9rem] rounded-full text-base font-medium hover:bg-white/10 transition-colors w-full sm:w-auto"
+                href="#"
+                className="bg-white/5 text-white border border-white/15 px-9 rounded-full text-base font-medium hover:bg-white/10 hover:border-white/30 transition-all duration-300 w-full sm:w-auto backdrop-blur-sm"
+                style={{ paddingTop: "1.1rem", paddingBottom: "1.1rem" }}
               >
                 Book a Demo
               </Link>
             </motion.div>
           </motion.div>
         </div>
-        
+
         <div className="absolute bottom-0 left-0 right-0">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" className="text-white">
-            <path fill="currentColor" fillOpacity="1" d="M0,288L48,272C96,256,192,224,288,213.3C384,203,480,213,576,229.3C672,245,768,267,864,261.3C960,256,1056,224,1152,208C1248,192,1344,192,1392,192L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 100" className="text-[#080c14]">
+            <path fill="currentColor" fillOpacity="1" d="M0,64L60,58.7C120,53,240,43,360,48C480,53,600,75,720,80C840,85,960,75,1080,64C1200,53,1320,43,1380,37.3L1440,32L1440,100L1380,100C1320,100,1200,100,1080,100C960,100,840,100,720,100C600,100,480,100,360,100C240,100,120,100,60,100L0,100Z" />
           </svg>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-[#121212] py-16 text-white">
-        <div className="container mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+      {/* ── FOOTER ── */}
+      <footer className="bg-[#080c14] pt-4 pb-12 text-white border-t border-white/5">
+        <div className="container mx-auto px-5 sm:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
             <div>
-              <Link href="/" className="flex items-center mb-6">
-                <div className="relative w-10 h-10 bg-[#00c853] rounded-full flex items-center justify-center">
-                  <Zap className="text-white w-6 h-6" />
+              <Link href="/" className="flex items-center gap-3 mb-6">
+                <div className="relative w-10 h-10 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#00e676] to-[#00b248] rounded-xl" />
+                  <Zap className="relative text-[#080c14] w-5 h-5 z-10" strokeWidth={2.5} />
                 </div>
-                <span className="ml-2 text-sm uppercase tracking-wider font-medium">
-                  <span className="text-[#00c853]">EV</span>Energy
+                <span className="text-lg font-bold tracking-tight" style={{ fontFamily: "var(--font-space-grotesk), sans-serif" }}>
+                  <span className="text-[#00e676]">Spark</span>Tech
                 </span>
               </Link>
-              <p className="text-gray-400 mb-6">
-                Powering the future of electric mobility with innovative charging solutions.
+              <p className="text-white/40 mb-6 text-sm leading-relaxed">
+                Powering the future of electric mobility with innovative smart charging solutions.
               </p>
-              <div className="flex space-x-4">
+              <div className="flex gap-3">
                 {["facebook", "twitter", "linkedin", "instagram"].map((social) => (
                   <Link
                     key={social}
                     href="#"
-                    className="w-9 h-9 rounded-full border border-gray-700 flex items-center justify-center hover:bg-[#00c853] hover:border-[#00c853] transition-colors"
+                    className="w-9 h-9 rounded-xl border border-white/10 flex items-center justify-center hover:bg-[#00e676] hover:border-[#00e676] hover:text-[#080c14] transition-all duration-200"
                   >
                     <span className="sr-only">{social}</span>
                     <svg className="w-4 h-4" aria-hidden="true" fill="currentColor" viewBox="0 0 24 24">
@@ -867,29 +816,17 @@ export default function Home() {
             </div>
 
             {[
-              {
-                title: "Products",
-                links: ["Home Charger", "Fast Charger", "Network Hub", "Fleet Solutions", "Accessories"],
-              },
-              {
-                title: "Company",
-                links: ["About Us", "Careers", "Press", "Blog", "Contact Us"],
-              },
-              {
-                title: "Support",
-                links: ["Help Center", "Installation", "Maintenance", "FAQs", "Partner Portal"],
-              },
+              { title: "Products", links: ["Home Charger", "Fast Charger", "Network Hub", "Fleet Solutions", "Accessories"] },
+              { title: "Company", links: ["About Us", "Careers", "Press", "Blog", "Contact Us"] },
+              { title: "Support", links: ["Help Center", "Installation", "Maintenance", "FAQs", "Partner Portal"] },
             ].map((category, idx) => (
               <div key={idx}>
-                <h3 className="font-bold text-lg mb-4">{category.title}</h3>
+                <h3 className="font-bold text-base mb-5 text-white" style={{ fontFamily: "var(--font-space-grotesk), sans-serif" }}>{category.title}</h3>
                 <ul className="space-y-3">
                   {category.links.map((link, linkIdx) => (
                     <li key={linkIdx}>
-                      <Link
-                        href="#"
-                        className="text-gray-400 hover:text-[#00c853] transition-colors text-sm flex items-center"
-                      >
-                        <span className="w-1.5 h-1.5 bg-[#00c853]/60 rounded-full mr-2"></span>
+                      <Link href="#" className="text-white/40 hover:text-[#00e676] transition-colors text-sm flex items-center gap-2 group">
+                        <span className="w-1 h-1 bg-[#00e676]/40 rounded-full group-hover:bg-[#00e676] transition-colors" />
                         {link}
                       </Link>
                     </li>
@@ -899,30 +836,27 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-500 text-sm mb-4 md:mb-0">
-              © {new Date().getFullYear()} EV Energy. All rights reserved.
+          <div className="border-t border-white/5 mt-14 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-white/30 text-sm">
+              © {new Date().getFullYear()} SparkTech. All rights reserved.
             </p>
-            <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-500">
-              <Link href="#" className="hover:text-[#00c853] transition-colors">
-                Privacy Policy
-              </Link>
-              <Link href="#" className="hover:text-[#00c853] transition-colors">
-                Terms of Service
-              </Link>
-              <Link href="#" className="hover:text-[#00c853] transition-colors">
-                Cookie Policy
-              </Link>
+            <div className="flex flex-wrap justify-center gap-5 text-sm text-white/30">
+              {["Privacy Policy", "Terms of Service", "Cookie Policy"].map((item) => (
+                <Link key={item} href="#" className="hover:text-[#00e676] transition-colors">{item}</Link>
+              ))}
             </div>
           </div>
         </div>
       </footer>
 
       {/* Animation styles */}
-      <style jsx global>{`
+      <style>{`
         .animate-in {
           opacity: 1 !important;
           transform: translateY(0) !important;
+        }
+        @media (prefers-reduced-motion: no-preference) {
+          html { scroll-behavior: smooth; }
         }
       `}</style>
     </main>

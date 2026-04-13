@@ -10,8 +10,12 @@ import {
 import { ref, get, set } from "firebase/database";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Zap, User, Phone, MapPin, X, AlertCircle } from "lucide-react";
+import { Zap, User, Phone, MapPin, X, AlertCircle, ArrowRight, ShieldCheck, Sparkles } from "lucide-react";
 
+/**
+ * LoginPage – Modern, premium login experience for SparkTech users.
+ * Supports Google Auth and a custom registration flow for new users.
+ */
 const LoginPage = () => {
   const [showRegistration, setShowRegistration] = useState(false);
   const [userCredential, setUserCredential] = useState<UserCredential | null>(null);
@@ -27,12 +31,13 @@ const LoginPage = () => {
 
   const router = useRouter();
 
-  // Animation effect when component mounts
   useEffect(() => {
     const loginCard = document.getElementById("login-card");
     if (loginCard) {
-      loginCard.classList.remove("opacity-0", "translate-y-10");
-      loginCard.classList.add("opacity-100", "translate-y-0");
+      setTimeout(() => {
+        loginCard.classList.remove("opacity-0", "translate-y-10");
+        loginCard.classList.add("opacity-100", "translate-y-0");
+      }, 100);
     }
   }, []);
 
@@ -45,21 +50,16 @@ const LoginPage = () => {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      // Check if the user already exists in Realtime Database
       const userRef = ref(db, "users/" + user.uid);
       const snapshot = await get(userRef);
 
       if (!snapshot.exists()) {
-        // New user – store the credential and show registration form
         setUserCredential(result);
         setShowRegistration(true);
-
-        // Pre-fill name from Google if available
         if (user.displayName) {
           setFormData((prev) => ({ ...prev, name: user.displayName || "" }));
         }
       } else {
-        // User exists; navigate to the homepage
         router.push("/home");
       }
     } catch (error: any) {
@@ -73,17 +73,11 @@ const LoginPage = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-
-    // Clear phone error when user types
-    if (name === "phone") {
-      setPhoneError("");
-    }
+    if (name === "phone") setPhoneError("");
   };
 
   const handleRegistrationSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    // Validate the phone number (must be exactly 10 digits)
     if (!/^\d{10}$/.test(formData.phone)) {
       setPhoneError("Please enter a valid 10-digit phone number");
       return;
@@ -113,92 +107,86 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#080c14] flex items-center justify-center p-5 relative overflow-hidden transition-all duration-500">
+      {/* Background aesthetic elements */}
+      <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+        <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#00e676]/20 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#0070f3]/10 rounded-full blur-[120px]" />
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(#ffffff 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
+      </div>
+
       <div
         id="login-card"
-        className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden transition-all duration-700 opacity-0 translate-y-10"
+        className="w-full max-w-md bg-[#0d1220] rounded-3xl shadow-2xl overflow-hidden transition-all duration-1000 opacity-0 translate-y-10 border border-white/5 relative z-10"
       >
-        {/* Header with logo */}
-        <div className="bg-[#00c853] p-6 text-white text-center">
-          <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-              <Zap className="w-8 h-8" />
+        {/* Header */}
+        <div className="bg-gradient-to-br from-[#0d1220] to-[#121a2a] p-10 text-center border-b border-white/5 relative">
+          <div className="flex justify-center mb-6">
+            <div className="relative w-16 h-16 flex items-center justify-center">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#00e676] to-[#00b248] rounded-2xl rotate-6 animate-pulse" />
+              <Zap className="relative text-[#080c14] w-8 h-8 z-10" strokeWidth={2.5} />
             </div>
           </div>
-          <h1 className="text-2xl font-bold">Welcome to EV Energy</h1>
-          <p className="text-white/80 mt-1">Sign in to access your EV charging account</p>
+          <h1 className="text-3xl font-black text-white tracking-tight" style={{ fontFamily: "var(--font-space-grotesk), sans-serif" }}>
+            <span className="text-[#00e676]">Spark</span>Tech
+          </h1>
+          <p className="text-white/40 mt-3 text-sm font-medium">Elevate Your EV Experience</p>
         </div>
 
-        {/* Login content */}
-        <div className="p-8">
+        {/* Form Body */}
+        <div className="p-8 pb-10">
           {error && (
-            <div className="mb-6 bg-red-50 text-red-700 p-4 rounded-lg flex items-start">
-              <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0 mt-0.5" />
+            <div className="mb-6 bg-red-500/10 border border-red-500/20 text-red-500 p-4 rounded-2xl flex items-start text-sm">
+              <AlertCircle className="w-5 h-5 mr-3 flex-shrink-0" />
               <p>{error}</p>
             </div>
           )}
 
-          <div className="space-y-6">
-            <div className="bg-gray-50 p-6 rounded-xl border border-gray-100">
-              <h2 className="text-lg font-semibold mb-2">Why sign in?</h2>
-              <ul className="space-y-2 text-gray-600">
-                <li className="flex items-start">
-                  <div className="bg-[#00c853]/10 rounded-full p-1 mr-2 mt-0.5">
-                    <svg className="w-3 h-3 text-[#00c853]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                    </svg>
+          <div className="space-y-8">
+            <div className="space-y-3">
+              <h2 className="text-white font-bold text-lg mb-4">Account Access</h2>
+              {[
+                { label: "Live Impact Stats", icon: <ShieldCheck className="w-4 h-4 text-[#00e676]" /> },
+                { label: "AI Optimized Charging", icon: <Sparkles className="w-4 h-4 text-[#00e676]" /> },
+                { label: "Seamless Payments", icon: <Zap className="w-4 h-4 text-[#00e676]" /> },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-3 bg-white/5 p-3 rounded-xl border border-white/5">
+                  <div className="w-8 h-8 rounded-lg bg-[#00e676]/10 flex items-center justify-center">
+                    {item.icon}
                   </div>
-                  <span>Track your charging history</span>
-                </li>
-                <li className="flex items-start">
-                  <div className="bg-[#00c853]/10 rounded-full p-1 mr-2 mt-0.5">
-                    <svg className="w-3 h-3 text-[#00c853]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <span>Save your favorite charging locations</span>
-                </li>
-                <li className="flex items-start">
-                  <div className="bg-[#00c853]/10 rounded-full p-1 mr-2 mt-0.5">
-                    <svg className="w-3 h-3 text-[#00c853]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <span>Manage payments and view invoices</span>
-                </li>
-              </ul>
+                  <span className="text-white/60 text-xs font-medium">{item.label}</span>
+                </div>
+              ))}
             </div>
 
             <button
               onClick={handleLogin}
               disabled={loginLoading}
-              className="w-full flex items-center justify-center bg-white border border-gray-300 rounded-lg px-6 py-3 text-gray-700 font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#00c853] focus:ring-offset-2 transition-colors disabled:opacity-70"
+              className="w-full group flex items-center justify-center bg-white text-[#080c14] rounded-2xl px-6 py-4 font-bold hover:shadow-2xl hover:shadow-[#00e676]/20 hover:-translate-y-1 transition-all duration-300 disabled:opacity-70 disabled:translate-y-0"
             >
               {loginLoading ? (
-                <div className="w-5 h-5 border-2 border-gray-300 border-t-[#00c853] rounded-full animate-spin mr-2"></div>
+                <div className="w-5 h-5 border-[3px] border-gray-200 border-t-[#00e676] rounded-full animate-spin"></div>
               ) : (
-                <Image
-                  src="/placeholder.svg?height=20&width=20&text=G"
-                  alt="Google"
-                  width={20}
-                  height={20}
-                  className="mr-2"
-                />
+                <div className="flex items-center justify-center w-full gap-3">
+                  <svg className="w-5 h-5" viewBox="0 0 24 24">
+                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                   <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                   <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+                   <path d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                  </svg>
+                  <span>Continue with Multi-Auth</span>
+                  <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                </div>
               )}
-              {loginLoading ? "Signing in..." : "Sign in with Google"}
             </button>
           </div>
 
-          <div className="mt-8 text-center text-sm text-gray-500">
-            <p>By signing in, you agree to our</p>
-            <div className="mt-1">
-              <a href="#" className="text-[#00c853] hover:underline">
-                Terms of Service
-              </a>
-              {" & "}
-              <a href="#" className="text-[#00c853] hover:underline">
-                Privacy Policy
-              </a>
+          <div className="mt-10 pt-6 border-t border-white/5 text-center text-[10px] text-white/30 tracking-widest uppercase font-bold">
+            <p className="mb-3">Secure Enterprise Infrastructure</p>
+            <div className="flex justify-center gap-4">
+              <a href="#" className="hover:text-[#00e676] transition-colors">Privacy</a>
+              <span className="text-white/10">•</span>
+              <a href="#" className="hover:text-[#00e676] transition-colors">Legal</a>
             </div>
           </div>
         </div>
@@ -206,28 +194,29 @@ const LoginPage = () => {
 
       {/* Registration Modal */}
       {showRegistration && userCredential && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 animate-fadeIn">
-          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl animate-scaleIn">
-            <div className="flex justify-between items-center p-6 border-b">
-              <h2 className="text-xl font-bold">Complete Your Profile</h2>
+        <div className="fixed inset-0 bg-[#080c14]/90 backdrop-blur-xl flex items-center justify-center p-5 z-[100] animate-fadeIn">
+          <div className="bg-[#0d1220] rounded-[2rem] w-full max-w-md shadow-[0_0_80px_rgba(0,0,0,0.5)] animate-scaleIn border border-white/10 overflow-hidden">
+            <div className="flex justify-between items-center p-8 bg-[#121a2a] border-b border-white/5">
+              <div>
+                <h2 className="text-2xl font-black text-white" style={{ fontFamily: "var(--font-space-grotesk), sans-serif" }}>Finalize Profile</h2>
+                <p className="text-white/40 text-xs mt-1">Configure your charging preferences</p>
+              </div>
               <button
                 onClick={() => setShowRegistration(false)}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/50 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleRegistrationSubmit} className="p-6">
-              <div className="space-y-4">
+            <form onSubmit={handleRegistrationSubmit} className="p-8 pt-10">
+              <div className="space-y-6">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                    Full Name
+                  <label htmlFor="name" className="block text-[10px] font-black text-white/30 mb-2 uppercase tracking-widest">
+                    Full Identity
                   </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <User className="h-5 w-5 text-gray-400" />
-                    </div>
+                  <div className="relative group">
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-[#00e676] transition-colors" />
                     <input
                       id="name"
                       type="text"
@@ -235,20 +224,18 @@ const LoginPage = () => {
                       value={formData.name}
                       onChange={handleInputChange}
                       required
-                      className="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#00c853] focus:border-[#00c853] transition-colors"
-                      placeholder="John Doe"
+                      className="w-full bg-white/5 border border-white/5 rounded-2xl px-12 py-4 text-white placeholder:text-white/10 focus:outline-none focus:border-[#00e676]/50 transition-all font-medium"
+                      placeholder="e.g. Elon Musk"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                    Phone Number (10-digit)
+                  <label htmlFor="phone" className="block text-[10px] font-black text-white/30 mb-2 uppercase tracking-widest">
+                    Telecom Contact (10 Digits)
                   </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Phone className="h-5 w-5 text-gray-400" />
-                    </div>
+                  <div className="relative group">
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-[#00e676] transition-colors" />
                     <input
                       id="phone"
                       type="tel"
@@ -256,25 +243,21 @@ const LoginPage = () => {
                       value={formData.phone}
                       onChange={handleInputChange}
                       required
-                      className={`pl-10 w-full px-4 py-2 border rounded-lg transition-colors ${
-                        phoneError
-                          ? "border-red-500 focus:ring-red-500 focus:border-red-500"
-                          : "border-gray-300 focus:ring-[#00c853] focus:border-[#00c853]"
+                      className={`w-full bg-white/5 border rounded-2xl px-12 py-4 text-white placeholder:text-white/10 focus:outline-none transition-all font-medium ${
+                        phoneError ? "border-red-500/50" : "border-white/5 focus:border-[#00e676]/50"
                       }`}
-                      placeholder="9876543210"
+                      placeholder="98765 43210"
                     />
                   </div>
-                  {phoneError && <p className="mt-1 text-sm text-red-600">{phoneError}</p>}
+                  {phoneError && <p className="mt-2 text-[10px] text-red-500 font-bold ml-1">{phoneError}</p>}
                 </div>
 
                 <div>
-                  <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
-                    Address
+                  <label htmlFor="address" className="block text-[10px] font-black text-white/30 mb-2 uppercase tracking-widest">
+                    Primary Zone
                   </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <MapPin className="h-5 w-5 text-gray-400" />
-                    </div>
+                  <div className="relative group">
+                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-[#00e676] transition-colors" />
                     <input
                       id="address"
                       type="text"
@@ -282,37 +265,33 @@ const LoginPage = () => {
                       value={formData.address}
                       onChange={handleInputChange}
                       required
-                      className="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#00c853] focus:border-[#00c853] transition-colors"
-                      placeholder="123 Main St, City, State"
+                      className="w-full bg-white/5 border border-white/5 rounded-2xl px-12 py-4 text-white placeholder:text-white/10 focus:outline-none focus:border-[#00e676]/50 transition-all font-medium"
+                      placeholder="New York, NY"
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="mt-8">
+              <div className="mt-10">
                 <button
                   type="submit"
                   disabled={regLoading}
-                  className="w-full bg-[#00c853] text-white py-3 rounded-lg font-medium hover:bg-[#00c853]/90 transition-colors disabled:opacity-70 flex items-center justify-center"
+                  className="w-full relative group overflow-hidden bg-gradient-to-r from-[#00e676] to-[#00b248] text-[#080c14] py-5 rounded-2xl font-black text-sm transition-all duration-300 hover:shadow-[0_0_30px_rgba(0,230,118,0.3)] disabled:opacity-50"
                 >
-                  {regLoading && (
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
-                  )}
-                  {regLoading ? "Saving..." : "Complete Registration"}
+                  <span className="relative z-10 flex items-center justify-center gap-3">
+                    {regLoading ? "Optimizing Systems..." : "Initialize Experience"}
+                    {!regLoading && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />}
+                  </span>
                 </button>
               </div>
 
-              <p className="mt-4 text-sm text-gray-500 text-center">
-                Your information is secure and will only be used to enhance your charging experience
+              <p className="mt-6 text-[10px] text-white/20 text-center font-medium leading-relaxed">
+                By entering the SparkTech ecosystem, you agree to our <span className="text-white/40 hover:text-white transition-colors cursor-pointer">Protocol Agreements</span> and data sovereignty policies.
               </p>
             </form>
           </div>
         </div>
       )}
-
-      {/* Background decorative elements */}
-      <div className="fixed top-0 right-0 w-1/3 h-screen bg-[#00c853]/5 -z-10"></div>
-      <div className="fixed bottom-0 left-0 w-1/4 h-1/2 bg-[#00c853]/5 -z-10 rounded-tr-full"></div>
     </div>
   );
 };
