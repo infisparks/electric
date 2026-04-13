@@ -235,7 +235,7 @@ export default function Dashboard() {
           <span className="text-xl font-bold tracking-tight text-gray-900">SparkTech</span>
         </div>
         <nav className="flex flex-col gap-2 flex-1">
-          {[{ label: "Dashboard", icon: <LayoutDashboard size={20} />, active: true }, { label: "History", icon: <History size={20} />, active: false }, { label: "Settings", icon: <Settings size={20} />, active: false }].map((item, i) => (
+          {[{ label: "Dashboard", icon: <LayoutDashboard size={20} />, active: true }, { label: "History", icon: <History size={20} />, active: false }].map((item, i) => (
             <button key={i} className={`flex items-center gap-4 px-5 py-4 rounded-2xl transition-all font-bold text-sm ${item.active ? "bg-green-50 text-[#00c853]" : "text-gray-400 hover:text-gray-600 hover:bg-gray-50"}`}>
               {item.icon}{item.label}
             </button>

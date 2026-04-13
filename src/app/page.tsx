@@ -132,10 +132,8 @@ export default function Home() {
           <nav className="hidden lg:flex items-center gap-8">
             {[
               { name: "Products", id: "products" },
-              { name: "Solutions", id: "solutions" },
               { name: "Statistics", id: "stats" },
               { name: "Team", id: "team" },
-              { name: "Company", id: "company" },
             ].map((item) => (
               <button
                 key={item.id}
@@ -151,16 +149,6 @@ export default function Home() {
           </nav>
 
           <div className="flex items-center gap-2 sm:gap-4">
-            <Link
-              href="/contact"
-              className="hidden sm:flex items-center gap-2 bg-gradient-to-r from-[#00e676] to-[#00b248] text-[#080c14] px-5 py-2.5 rounded-full text-sm font-semibold hover:shadow-lg hover:shadow-[#00e676]/25 transition-all duration-300 hover:-translate-y-0.5"
-            >
-              Contact Us
-            </Link>
-            <button className="relative p-2 hover:bg-white/10 rounded-full transition-colors">
-              <ShoppingCart className="w-5 h-5 text-white/80" />
-              <span className="absolute top-0.5 right-0.5 w-3.5 h-3.5 bg-[#00e676] rounded-full text-[#080c14] text-[9px] font-bold flex items-center justify-center">2</span>
-            </button>
             <button
               className="lg:hidden p-2 hover:bg-white/10 rounded-full transition-colors"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -176,11 +164,8 @@ export default function Home() {
             <nav className="flex flex-col gap-1">
               {[
                 { name: "Products", id: "products" },
-                { name: "Solutions", id: "solutions" },
                 { name: "Statistics", id: "stats" },
                 { name: "Team", id: "team" },
-                { name: "Company", id: "company" },
-                { name: "Contact Us", id: "contact" },
               ].map((item) => (
                 <button
                   key={item.id}
@@ -816,9 +801,8 @@ export default function Home() {
             </div>
 
             {[
-              { title: "Products", links: ["Home Charger", "Fast Charger", "Network Hub", "Fleet Solutions", "Accessories"] },
-              { title: "Company", links: ["About Us", "Careers", "Press", "Blog", "Contact Us"] },
-              { title: "Support", links: ["Help Center", "Installation", "Maintenance", "FAQs", "Partner Portal"] },
+              { title: "Solutions", links: ["Home Charging", "Fast Charging", "Network Management", "EV Fleet", "Accessories"] },
+              { title: "SparkTech", links: ["About Infrastructure", "Technology", "Verified Statistics", "Our Team"] },
             ].map((category, idx) => (
               <div key={idx}>
                 <h3 className="font-bold text-base mb-5 text-white" style={{ fontFamily: "var(--font-space-grotesk), sans-serif" }}>{category.title}</h3>
